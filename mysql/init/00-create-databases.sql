@@ -38,6 +38,8 @@ CREATE DATABASE IF NOT EXISTS card_simulator_db
   DEFAULT CHARACTER SET utf8mb4
   DEFAULT COLLATE utf8mb4_unicode_ci;
 
+CREATE USER IF NOT EXISTS 'erumpay'@'%' IDENTIFIED BY 'erumpay1234';
+
 GRANT ALL PRIVILEGES ON auth_db.* TO 'erumpay'@'%';
 GRANT ALL PRIVILEGES ON card_db.* TO 'erumpay'@'%';
 GRANT ALL PRIVILEGES ON payment_db.* TO 'erumpay'@'%';
