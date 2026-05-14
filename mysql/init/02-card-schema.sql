@@ -54,12 +54,12 @@ CREATE TABLE IF NOT EXISTS card_performance (
   perf_id BIGINT NOT NULL AUTO_INCREMENT,
   user_id BIGINT NOT NULL COMMENT 'auth_users 논리 참조',
   card_id BIGINT NOT NULL,
-  year_month CHAR(6) NOT NULL COMMENT 'YYYYMM',
+  `year_month` CHAR(6) NOT NULL COMMENT 'YYYYMM',
   amount BIGINT NOT NULL DEFAULT 0,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (perf_id),
-  UNIQUE KEY uk_card_performance_user_card_month (user_id, card_id, year_month),
+  UNIQUE KEY uk_card_performance_user_card_month (user_id, card_id, `year_month`),
   KEY idx_card_performance_card (card_id),
   CONSTRAINT fk_card_performance_card FOREIGN KEY (card_id) REFERENCES card_registered(card_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
