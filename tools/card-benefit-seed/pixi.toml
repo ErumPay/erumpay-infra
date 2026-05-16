@@ -1,0 +1,15 @@
+[workspace]
+channels = ["conda-forge"]
+platforms = ["win-64"]
+
+[dependencies]
+python = ">=3.12,<3.13"
+selenium = ">=4.0"
+beautifulsoup4 = ">=4.0"
+
+[tasks]
+collect-card-ids = "python collect_card_ids.py"
+crawl-card-details = "python card_gorilla_crawler.py"
+dry-run-seed = "python generate_card_gorilla_seed_sql.py --cards-json ./card_gorilla_cards.json --ranks-json ./card_ids.json --dry-run"
+generate-seed-sql = "python generate_card_gorilla_seed_sql.py --cards-json ./card_gorilla_cards.json --ranks-json ./card_ids.json"
+self-test = "python generate_card_gorilla_seed_sql.py --self-test"

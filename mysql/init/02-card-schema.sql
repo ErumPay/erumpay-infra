@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS card_performance (
 CREATE TABLE IF NOT EXISTS card_benefit (
   benefit_id BIGINT NOT NULL AUTO_INCREMENT,
   card_product_id BIGINT NOT NULL,
-  service_category ENUM('FOOD','CAFE','GROCERY','CVS','SHOPPING','AUTO','TRANSIT','TAXI','HEALTH','PHARMACY','BEAUTY','LEISURE','FITNESS','EDU','TELECOM','UTILITY','TRAVEL','AIRLINE','INSURANCE','ETC') NOT NULL,
+  service_category ENUM('FOOD','CAFE','GROCERY','CVS','SHOPPING','AUTO','TRANSIT','TAXI','HEALTH','PHARMACY','BEAUTY','LEISURE','FITNESS','EDU','TELECOM','UTILITY','TRAVEL','AIRLINE','INSURANCE','ETC','ALL') NOT NULL,
   benefit_type ENUM('DISCOUNT','CASHBACK','MILEAGE') NOT NULL,
   min_amount BIGINT NULL,
   time_start TIME NULL,
@@ -83,12 +83,22 @@ CREATE TABLE IF NOT EXISTS card_benefit (
   CONSTRAINT fk_card_benefit_product FOREIGN KEY (card_product_id) REFERENCES card_product(card_product_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE IF NOT EXISTS card_benefit_brand (
+  brand_id BIGINT NOT NULL AUTO_INCREMENT,
+  benefit_id BIGINT NOT NULL,
+  brand_name VARCHAR(100) NOT NULL,
+  PRIMARY KEY (brand_id),
+  UNIQUE KEY uk_card_benefit_brand_benefit_name (benefit_id, brand_name),
+  KEY idx_card_benefit_brand_benefit (benefit_id),
+  CONSTRAINT fk_card_benefit_brand_benefit FOREIGN KEY (benefit_id) REFERENCES card_benefit(benefit_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE IF NOT EXISTS card_benefit_tier (
   tier_id BIGINT NOT NULL AUTO_INCREMENT,
   benefit_id BIGINT NOT NULL,
   min_prev_month_usage BIGINT NOT NULL DEFAULT 0,
   max_prev_month_usage BIGINT NULL,
-  rate DECIMAL(5,2) NULL,
+  rate DECIMAL(5,3) NULL,
   flat_amount BIGINT NULL,
   max_benefit_per_use BIGINT NULL,
   daily_limit_count INT NULL,
@@ -97,7 +107,7 @@ CREATE TABLE IF NOT EXISTS card_benefit_tier (
   monthly_limit_amount BIGINT NULL,
   yearly_limit_count INT NULL,
   yearly_limit_amount BIGINT NULL,
-  tier_desc VARCHAR(255) NULL,
+  tier_desc VARCHAR(500) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (tier_id),
