@@ -139,11 +139,17 @@ def parse_annual_fee(fee_text: str | None) -> int | None:
     if domestic:
         return int(domestic.group(1).replace(",", ""))
 
+    domestic_text = re.search(r"국내전용\s*(.*?)(?:\s*해외겸용|$)", text)
+    if domestic_text:
+        domestic_amount = normalize_money(domestic_text.group(1))
+        if domestic_amount is not None:
+            return domestic_amount
+
     amounts = re.findall(r"([0-9][0-9,]*)\s*원", text)
     if amounts:
         return int(amounts[0].replace(",", ""))
 
-    return None
+    return normalize_money(text)
 
 
 def parse_previous_month_usage(text: str | None) -> tuple[int | None, int | None] | None:

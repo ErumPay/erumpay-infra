@@ -260,6 +260,18 @@ def generate_card_benefit_sql(card: dict, benefit: dict, benefit_order: Any, tie
         "NOW()",
         "NOW()",
     ]
+    predicates = [
+        f"cb.card_product_id = {product_var}",
+        f"cb.service_category = {sql_literal(service_category)}",
+        f"cb.benefit_type = {sql_literal(benefit_type)}",
+        f"cb.min_amount <=> {sql_literal(min_amount)}",
+        f"cb.time_start <=> {sql_literal(time_start)}",
+        f"cb.time_end <=> {sql_literal(time_end)}",
+        f"cb.day_condition = {sql_literal(day_condition)}",
+        f"cb.benefit_desc <=> {sql_literal(benefit_desc)}",
+        "cb.priority = 0",
+    ]
+    predicate_sql = "\n      AND ".join(predicates)
     return "\n".join(
         [
             f"-- card_benefit: source_card_id={source_card_id}, order={benefit_order}, category={service_category}, type={benefit_type}, priority=0",
@@ -269,8 +281,19 @@ def generate_card_benefit_sql(card: dict, benefit: dict, benefit_order: Any, tie
             ")",
             f"SELECT {', '.join(values)}",
             "FROM DUAL",
-            f"WHERE {product_var} IS NOT NULL;",
-            f"SET {benefit_var} = IF(ROW_COUNT() > 0, LAST_INSERT_ID(), NULL);",
+            f"WHERE {product_var} IS NOT NULL",
+            "  AND NOT EXISTS (",
+            "    SELECT 1",
+            "    FROM card_benefit cb",
+            f"    WHERE {predicate_sql}",
+            "  );",
+            f"SET {benefit_var} = (",
+            "  SELECT cb.benefit_id",
+            "  FROM card_benefit cb",
+            f"  WHERE {predicate_sql}",
+            "  ORDER BY cb.benefit_id",
+            "  LIMIT 1",
+            ");",
         ]
     )
 
@@ -1065,7 +1088,7 @@ def _build_header(summary: dict[str, Any], cards_json_path: str | Path, ranks_js
             "-- - unit rewards are conservatively converted with 1 mile/point = 1 KRW and original text is preserved in tier_desc.",
             "-- - split benefits with shared monthly/yearly limits keep [SHARED_LIMIT ...] source notes in tier_desc; exact monthly aggregation requires recommendation-service handling.",
             "-- - card_benefit.priority is seeded as 0; source order is used only for generated SQL variables/comments.",
-            "-- - card_benefit rows are append-oriented because the current schema has no source benefit natural key.",
+            "-- - card_benefit has no source benefit natural key; this seed uses a best-effort predicate on current columns to avoid duplicates when the same SQL is re-run.",
             "-- - generated_* counters mean generated SQL statements, not actual DB affected rows after NOT EXISTS guards.",
             "-- - for full re-crawl/re-seed, review cleanup policy for old master rows before running this file.",
             "--",
@@ -1451,6 +1474,9 @@ def generate_seed_sql(cards_json_path: str | Path, ranks_json_path: str | Path, 
 
 def run_self_tests() -> None:
     assert parse_annual_fee("국내전용 10,000원 해외겸용 12,000원") == 10000
+    assert parse_annual_fee("국내전용 1만원 해외겸용 1만2천원") == 10000
+    assert parse_annual_fee("국내전용 1만5천원 해외겸용 2만원") == 15000
+    assert parse_annual_fee("해외겸용 1만5천원") == 15000
     assert parse_tiers("전월실적30만원 이상", "10% 청구할인")[0]["min_prev_month_usage"] == 300000
     assert infer_benefit_type("", "10% 청구할인", "") == "DISCOUNT"
     assert infer_benefit_type("", "3만원 캐시백", "") == "CASHBACK"

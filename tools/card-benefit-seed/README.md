@@ -174,6 +174,6 @@ recommendation-service는 이 테이블을 사용할 때 다음 규칙을 따라
 
 `card_product`는 `source_card_id` 기준으로만 기존 row를 갱신합니다. `mock_bin`이 다른 `source_card_id`와 충돌하면 해당 카드의 insert를 막고 하위 혜택 SQL도 변수 guard로 실행되지 않게 합니다.
 
-`card_benefit`에는 현재 원본 혜택을 식별할 자연키 컬럼이 없습니다. 그래서 benefit/tier/brand seed는 초기 적재 또는 정리 후 재적재를 전제로 한 append 성격입니다. 같은 SQL을 이미 실행한 DB에 다시 실행하면 `card_benefit` 중복 row가 생길 수 있으므로, 재크롤링이나 재시딩 전에는 기존 seed 데이터 정리 정책을 먼저 확인해야 합니다.
+`card_benefit`에는 현재 원본 혜택을 식별할 자연키 컬럼이 없습니다. 그래서 생성 SQL은 현재 컬럼 조합(`card_product_id`, `service_category`, `benefit_type`, 조건 컬럼, `benefit_desc`, `priority`)으로 동일 row를 찾아 같은 SQL 재실행 시 중복 insert를 막습니다. 다만 재크롤링이나 파싱 규칙 변경으로 설명/조건 값이 달라진 row는 별도 row로 판단될 수 있으므로, 전체 재시딩 전에는 기존 seed 데이터 정리 정책을 먼저 확인해야 합니다.
 
 Docker init SQL은 MySQL 데이터 볼륨이 처음 생성될 때만 자동 실행됩니다. 이미 DB를 띄운 적 있으면 `docker compose down -v` 후 `docker compose up -d`해야 `11-seed-card-gorilla-cards.sql`이 자동 실행됩니다.
