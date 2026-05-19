@@ -28,6 +28,7 @@ from parsers import (
     parse_day_condition,
     parse_flat_amount,
     parse_min_amount,
+    parse_previous_month_usage,
     parse_rate,
     parse_time_condition,
     parse_tiers,
@@ -1509,6 +1510,18 @@ def run_self_tests() -> None:
     assert tier["daily_limit_count"] == 1
     assert parse_tiers("", "1만원 이상 결제 시 5% 할인")[0]["min_prev_month_usage"] == 0
     assert parse_tiers("전월실적40만원 이상", "국내 가맹점 0.7% 할인\n전월 이용금액에 관계없이")[0]["min_prev_month_usage"] == 0
+    loca_text = "지난달 1일 ~ 말일까지 50만원 이상(본인, 가족카드 합산) 이용 시 혜택이 제공됩니다.\n2만원 이상 결제 건에 대해서 혜택이 제공됩니다."
+    assert parse_previous_month_usage(loca_text) == (500000, None)
+    assert parse_min_amount(loca_text) == 20000
+    assert parse_min_amount("전월 이용금액 40만원 이상 시 제공") is None
+    assert parse_min_amount("전월 이용 금액 40만원 이상 시 제공") is None
+    assert parse_min_amount("건별 10만원 이상 결제시 1% 할인") == 100000
+    assert parse_min_amount("현대해상 다이렉트 자동차보험 보험료 30만원 이상 결제 시 30,000원 할인") == 300000
+    assert parse_min_amount("월 100만원 이상 이용 시 1% 적립") is None
+    assert parse_min_amount("해당 분기에 속하는 3개월 동안 매월 10만원 이상 이용 시 추가 할인") is None
+    assert parse_min_amount("4~6월에 총 300만원 이상 이용 및 매월 10만원 이상 이용") is None
+    assert parse_min_amount("월(1일~말일) 20만원 이상 학원비 결제 건수별 추가 캐시백") is None
+    assert parse_min_amount("승인금액 기준 20만원 이상만 결제 건수로 인정됩니다.") is None
     representative, is_multiline, desc_text = split_representative_line("지하철, 버스 7% 청구할인\nSKT, KT, LGU+ 7% 청구할인", "")
     assert is_multiline and "지하철" in representative and "SKT" in desc_text
     stream_delivery_split = expand_benefit_items(
