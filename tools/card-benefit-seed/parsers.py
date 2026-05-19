@@ -252,14 +252,70 @@ def parse_flat_amount(text: str | None) -> int | None:
 
 def parse_min_amount(text: str | None) -> int | None:
     clean_text = strip_exclusion_sections(text)
+    period_usage_keywords = (
+        "전월",
+        "지난달",
+        "직전",
+        "말일까지",
+        "이용실적",
+        "실적",
+        "본인, 가족",
+        "가족카드",
+        "합산",
+        "전년도",
+        "최근 3개월",
+        "분기",
+        "총 ",
+        "연회비 청구 주기",
+        "월 이용금액",
+        "월 이용 금액",
+        "당월 이용금액",
+        "당월 이용 금액",
+        "분기별 이용실적",
+        "카드 사용등록일",
+        "카드사용 등록일",
+        "카드 사용 등록일",
+    )
+    strong_payment_keywords = (
+        "건당",
+        "건별",
+        "1회",
+        "결제 시",
+        "결제시",
+        "결제 건",
+        "결제건",
+        "결제금액",
+        "결제 금액",
+        "이용금액 기준 1회",
+        "이용 금액 기준 1회",
+        "이용금액 건당",
+        "이용 금액 건당",
+        "매출 건당",
+        "보험료",
+    )
     patterns = (
         rf"({MONEY_PATTERN})\s*이상[^\n]{{0,16}}(?:결제|이용|사용)",
         rf"(?:결제|이용|사용)[^\n]{{0,16}}({MONEY_PATTERN})\s*이상",
     )
     for pattern in patterns:
         for match in re.finditer(pattern, clean_text):
-            before = clean_text[max(0, match.start() - 12):match.start()]
-            if "전월" in before or "실적" in before:
+            line_start = clean_text.rfind("\n", 0, match.start()) + 1
+            line_end = clean_text.find("\n", match.end())
+            if line_end == -1:
+                line_end = len(clean_text)
+            line = clean_text[line_start:line_end]
+            before = clean_text[max(0, match.start() - 24):match.start()]
+            after = clean_text[match.end():min(len(clean_text), match.end() + 24)]
+            context = f"{before}{match.group(0)}{after}"
+            line_prefix = clean_text[line_start:match.start(1)]
+            has_period_context = any(keyword in line or keyword in context for keyword in period_usage_keywords)
+            if re.search(r"(?:^|[\s(])(?:월|매월)\s*$", line_prefix):
+                has_period_context = True
+            has_payment_context = any(keyword in line for keyword in strong_payment_keywords)
+            if any(keyword in line for keyword in ("결제 건수", "결제건수", "건수별", "건수로 인정")):
+                has_period_context = True
+                has_payment_context = False
+            if has_period_context and not has_payment_context:
                 continue
             amount = normalize_money(match.group(1))
             if amount:
