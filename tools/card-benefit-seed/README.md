@@ -60,8 +60,9 @@ python generate_card_gorilla_seed_sql.py --self-test
 pixi 환경을 사용하는 경우:
 
 ```powershell
-pixi run python generate_card_gorilla_seed_sql.py --dry-run
-pixi run python generate_card_gorilla_seed_sql.py --self-test
+pixi run dry-run-seed
+pixi run generate-seed-sql
+pixi run self-test
 ```
 
 ## 현재 DB 스키마 기준 저장 필드
@@ -127,13 +128,40 @@ pixi run python generate_card_gorilla_seed_sql.py --self-test
 - 선택형 안내 row는 SKIP하고, 실제 수치가 있는 선택형 후보는 모두 저장합니다.
 - 현재 DB에는 사용자별 선택 옵션 저장 구조가 없으므로 추천 계산 시 실제 사용자가 선택하지 않은 혜택이 후보에 포함될 수 있습니다.
 - 줄바꿈 또는 `/`, `·`로 나뉜 다중 혜택 row는 각 조각이 독립 혜택으로 파싱 가능한 경우에만 여러 `card_benefit` row로 분리합니다.
+- 크롤링 JSON의 `tables`에 `구분/할인 대상` 같은 대상 표가 있으면 표 행 기준으로 혜택을 분리합니다.
+- 표에 전월 이용금액대별 한도 표가 함께 있으면 `card_benefit_tier`를 실적 구간별로 생성합니다.
+- 표 기반 split도 유의사항/해외/타사페이/선택형 안내 row에서는 수행하지 않습니다.
 - `card_benefit.priority`는 추천 우선순위 의미를 보존하기 위해 모두 `0`으로 저장합니다. 원본 순번은 SQL 변수명/주석에만 사용합니다.
 - 마일리지/포인트 단위형 적립은 `1마일/1포인트 = 1원` 기준으로 `rate`에 보수 환산합니다.
 - 환산 원문은 `tier_desc`의 `[UNIT_REWARD ...]` 태그로 보존합니다.
+- 브랜드 표기 변형은 seed 단계에서 가능한 범위만 대표명으로 정규화합니다. 예: `SSG COM`, `SSGCOM`, `SSG닷컴`은 `SSG.COM`으로 저장합니다.
+
+## recommendation-service 키워드 매칭 규칙
+
+`recommend_merchant_keyword_override`는 MCC가 부정확하거나 과도하게 넓은 경우 가맹점명을 기반으로 서비스 카테고리를 보정하는 테이블입니다.
+
+recommendation-service는 이 테이블을 사용할 때 다음 규칙을 따라야 합니다.
+
+1. 결제 가맹점명과 `keyword`를 동일한 방식으로 정규화합니다.
+   - 공백 제거
+   - 대소문자 통일
+   - `.`/`-`/`_` 같은 구분 문자 통일 또는 제거
+2. 정규화된 가맹점명에 포함되는 active keyword 후보를 모두 찾습니다.
+3. `priority DESC`, 정규화된 keyword 길이 `DESC` 순으로 가장 구체적인 keyword 1개를 선택합니다.
+4. keyword override가 없을 때만 MCC mapping을 사용합니다.
+
+예:
+
+- `이마트24 강남점`은 `이마트`보다 `이마트24`가 먼저 선택되어 `CVS`가 되어야 합니다.
+- `쿠팡이츠`는 `쿠팡`보다 먼저 선택되어 `FOOD`가 되어야 합니다.
+- `홈플러스 익스프레스`는 `홈플러스`보다 먼저 선택되어야 합니다.
 
 ## 검수해야 할 dry-run 항목
 
 - `mapped_etc_category`
+- `table_benefit_source_rows`
+- `table_benefit_items`
+- `table_limit_tier_groups`
 - `possible_brand_review_items`
 - `skipped_no_tier_value`
 - `unit_reward_converted`

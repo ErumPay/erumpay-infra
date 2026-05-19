@@ -60,13 +60,18 @@ def text_or_empty(parent: WebElement, selector: str) -> str:
 def click_accordion(driver: webdriver.Chrome, element: WebElement) -> bool:
     """일반 클릭이 막히는 아코디언은 JS 클릭으로 한 번 더 시도한다."""
     try:
-        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", element)
+        target = element.find_element(By.CSS_SELECTOR, "dt")
+    except NoSuchElementException:
+        target = element
+
+    try:
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", target)
         time.sleep(0.2)
-        element.click()
+        target.click()
         return True
     except (ElementClickInterceptedException, StaleElementReferenceException):
         try:
-            driver.execute_script("arguments[0].click();", element)
+            driver.execute_script("arguments[0].click();", target)
             return True
         except Exception:
             return False
@@ -89,6 +94,16 @@ def activate_lazy_content(driver: webdriver.Chrome) -> None:
 
     driver.execute_script("window.scrollTo(0, 0);")
     time.sleep(0.4)
+
+
+def wait_for_accordion_detail(driver: webdriver.Chrome, element: WebElement, timeout_seconds: float = 3.0) -> None:
+    """아코디언 클릭 뒤 Vue가 dd를 렌더링할 시간을 준다."""
+    try:
+        WebDriverWait(driver, timeout_seconds).until(
+            lambda _: len(element.find_elements(By.CSS_SELECTOR, "dd")) > 0
+        )
+    except TimeoutException:
+        pass
 
 
 def extract_card_top(driver: webdriver.Chrome) -> dict:
@@ -143,6 +158,92 @@ def extract_main_benefits(driver: webdriver.Chrome) -> list[str]:
     return benefits
 
 
+def extract_table_context(driver: webdriver.Chrome, table: WebElement) -> str:
+    """테이블 직전의 짧은 설명 문구를 함께 보존해 어떤 조건표인지 검수할 수 있게 한다."""
+    context = driver.execute_script(
+        """
+        const table = arguments[0];
+        const texts = [];
+        let node = table.previousSibling;
+
+        while (node && texts.length < 3) {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const tag = node.tagName.toLowerCase();
+            if (tag === 'table') {
+              break;
+            }
+            const text = (node.innerText || node.textContent || '').trim();
+            if (text) {
+              texts.unshift(text);
+            }
+          } else if (node.nodeType === Node.TEXT_NODE) {
+            const text = (node.textContent || '').trim();
+            if (text) {
+              texts.unshift(text);
+            }
+          }
+          node = node.previousSibling;
+        }
+
+        return texts.join('\\n');
+        """,
+        table,
+    )
+    return str(context or "").strip()
+
+
+def extract_table_rows(table: WebElement) -> tuple[list[str], list[list[str]]]:
+    """HTML table의 헤더와 행 텍스트를 2차원 배열로 보존한다."""
+    parsed_rows: list[tuple[list[str], bool]] = []
+
+    for row in table.find_elements(By.CSS_SELECTOR, "tr"):
+        cells = []
+        has_header_cell = False
+        for cell in row.find_elements(By.CSS_SELECTOR, "th, td"):
+            text = cell.text.strip()
+            if not text:
+                continue
+            cells.append(text)
+            if cell.tag_name.lower() == "th":
+                has_header_cell = True
+        if cells:
+            parsed_rows.append((cells, has_header_cell))
+
+    if not parsed_rows:
+        return [], []
+
+    first_row, first_is_header = parsed_rows[0]
+    header_markers = {"구분", "할인 대상", "서비스", "내용", "총 연회비", "기본 연회비", "제휴 연회비"}
+    looks_like_header = any(cell in header_markers for cell in first_row)
+    looks_like_amount_band_header = len(parsed_rows) == 2 and all("이상" in cell or "미만" in cell for cell in first_row)
+
+    if first_is_header or looks_like_header or looks_like_amount_band_header:
+        return first_row, [row for row, _ in parsed_rows[1:]]
+    return [], [row for row, _ in parsed_rows]
+
+
+def extract_detail_tables(driver: webdriver.Chrome, dl: WebElement) -> list[dict]:
+    """혜택 상세 내 표를 JSON에 보존한다."""
+    tables: list[dict] = []
+
+    for index, table in enumerate(dl.find_elements(By.CSS_SELECTOR, "dd div.in_box table, dd table"), start=1):
+        headers, rows = extract_table_rows(table)
+        if not headers and not rows:
+            continue
+
+        tables.append(
+            {
+                "index": index,
+                "context": extract_table_context(driver, table),
+                "headers": headers,
+                "rows": rows,
+                "text": table.text.strip(),
+            }
+        )
+
+    return tables
+
+
 def extract_detail_benefits(driver: webdriver.Chrome) -> list[dict]:
     """혜택 아코디언을 순서대로 열어 card_benefit 파싱에 사용할 원문 텍스트를 수집한다."""
     try:
@@ -162,12 +263,13 @@ def extract_detail_benefits(driver: webdriver.Chrome) -> list[dict]:
         except (IndexError, StaleElementReferenceException):
             continue
 
-        opened_by_click = idx != 0 and click_accordion(driver, dl)
+        opened_by_click = click_accordion(driver, dl)
         if opened_by_click:
-            time.sleep(0.4)
+            wait_for_accordion_detail(driver, dl)
 
         main_title = text_or_empty(dl, "dt p") or text_or_empty(dl, "dt")
         sub_title = text_or_empty(dl, "dt i")
+        tables = extract_detail_tables(driver, dl)
         detail_lines = [
             item.text.strip()
             for item in dl.find_elements(By.CSS_SELECTOR, "dd div.in_box p, dd div.in_box li")
@@ -185,6 +287,7 @@ def extract_detail_benefits(driver: webdriver.Chrome) -> list[dict]:
                     "main_title": main_title,
                     "sub_title": sub_title,
                     "detail": "\n".join(detail_lines),
+                    "tables": tables,
                 }
             )
 

@@ -22,6 +22,7 @@ from parsers import (
     build_rank_map,
     infer_benefit_type,
     load_json,
+    normalize_money,
     normalize_spaces,
     parse_annual_fee,
     parse_day_condition,
@@ -98,7 +99,10 @@ def is_third_party_pay_benefit(main_title: str | None, sub_title: str | None, de
 
 def is_premium_or_voucher(main_title: str | None, sub_title: str | None) -> bool:
     text = _classification_text(main_title, sub_title)
-    return any(keyword in text for keyword in ("바우처", "프리미엄", "공항라운지", "공항라운지/PP", "발렛파킹"))
+    compact = _compact(text)
+    if "프리미엄아울렛" in compact:
+        return False
+    return any(keyword in compact for keyword in ("바우처", "공항라운지", "공항라운지/PP", "발렛파킹", "프리미엄서비스", "유튜브프리미엄"))
 
 
 def is_non_payment_benefit(main_title: str | None, sub_title: str | None) -> bool:
@@ -110,6 +114,10 @@ def is_selectable_notice_only(main_title: str | None, sub_title: str | None, det
     text = _classification_text(main_title, sub_title)
     compact = _compact(text)
     if "선택옵션에따른" in compact and ("택1" in compact or "선택" in compact):
+        return True
+    if "패키지선택" in compact:
+        return True
+    if "선택형" in compact and "선택" in compact and not (parse_rate(text) or parse_flat_amount(text) or parse_unit_reward_rate(text)):
         return True
     if "카드플레이트선택" in compact:
         return True
@@ -347,6 +355,7 @@ VALUE_WITH_SUFFIX_RE = re.compile(
 SPLIT_CATEGORY_ALIASES = {
     "배달": "FOOD",
     "배달앱": "FOOD",
+    "Dining": "FOOD",
     "커피": "CAFE",
     "커피전문점": "CAFE",
     "음료전문점": "CAFE",
@@ -354,11 +363,33 @@ SPLIT_CATEGORY_ALIASES = {
     "영화": "LEISURE",
     "의료": "HEALTH",
     "온라인쇼핑몰": "SHOPPING",
+    "온라인쇼핑": "SHOPPING",
+    "온라인몰": "SHOPPING",
+    "홈쇼핑": "SHOPPING",
+    "Shopping": "SHOPPING",
+    "백화점": "SHOPPING",
+    "프리미엄 아울렛": "SHOPPING",
     "생활잡화": "SHOPPING",
+    "잡화": "SHOPPING",
+    "대형 할인점": "GROCERY",
+    "창고형 할인매장": "GROCERY",
+    "슈퍼마켓": "GROCERY",
+    "할인점": "GROCERY",
+    "마트": "GROCERY",
+    "디지털콘텐츠": "ETC",
     "멤버십": "ETC",
+    "인앱 결제": "ETC",
+    "보틀숍": "ETC",
     "OTT": "ETC",
+    "Entertainment": "LEISURE",
     "운동": "FITNESS",
+    "학원": "EDU",
+    "인터넷강의": "EDU",
+    "학습지": "EDU",
     "보험료": "INSURANCE",
+    "Travel": "TRAVEL",
+    "HOTEL": "TRAVEL",
+    "AUTO": "AUTO",
 }
 
 SHARED_LIMIT_RE = re.compile(
@@ -614,10 +645,317 @@ def _card_shared_limit_note(card: dict) -> str:
     return _shared_limit_note("\n".join(note_source))
 
 
+TARGET_HEADER_HINTS = ("할인 대상", "할인대상", "대상 가맹점", "대상가맹점", "적립 대상", "적립대상")
+IGNORE_TABLE_HINTS = ("연회비", "수수료", "환율", "유의사항", "전월 이용금액 기준", "서비스 이용 방법", "추가 차감")
+
+
+def _table_text(table: dict) -> str:
+    return "\n".join(
+        part
+        for part in [
+            table.get("context") or "",
+            " ".join(table.get("headers") or []),
+            "\n".join(" ".join(row) for row in table.get("rows") or []),
+        ]
+        if part
+    )
+
+
+def _table_headers(table: dict) -> list[str]:
+    return [normalize_spaces(header) for header in table.get("headers") or [] if normalize_spaces(header)]
+
+
+def _table_rows(table: dict) -> list[list[str]]:
+    return [[normalize_spaces(cell) for cell in row] for row in table.get("rows") or [] if any(normalize_spaces(cell) for cell in row)]
+
+
+def _table_data_rows(table: dict) -> list[list[str]]:
+    rows = _table_rows(table)
+    if not rows:
+        return []
+    first = " ".join(rows[0])
+    if any(hint in first for hint in ("구분", "영역", "업종", "할인 대상", "할인대상", "대상 가맹점")):
+        return rows[1:]
+    return rows
+
+
+def _is_ignored_table(table: dict) -> bool:
+    context = table.get("context") or ""
+    return any(hint in context for hint in IGNORE_TABLE_HINTS)
+
+
+def _money_band_min(text: str) -> int | None:
+    match = re.search(r"(\d+(?:\.\d+)?)\s*만\s*원?\s*이상", text or "")
+    if not match:
+        return None
+    return int(float(match.group(1)) * 10_000)
+
+
+def _is_limit_table(table: dict) -> bool:
+    headers = _table_headers(table)
+    rows = _table_rows(table)
+    if sum(1 for header in headers if _money_band_min(header) is not None) >= 2:
+        return True
+    if rows and sum(1 for cell in rows[0] if _money_band_min(cell) is not None) >= 2:
+        return True
+    return False
+
+
+def _limit_specs_from_table(table: dict) -> list[dict[str, Any]]:
+    headers = _table_headers(table)
+    rows = _table_rows(table)
+    band_headers = headers
+    amount_row: list[str] | None = None
+
+    if sum(1 for header in band_headers if _money_band_min(header) is not None) < 2 and rows:
+        band_headers = rows[0]
+        rows = rows[1:]
+
+    if sum(1 for header in band_headers if _money_band_min(header) is not None) < 2:
+        return []
+
+    for row in rows:
+        amounts = [normalize_money(cell) for cell in row]
+        if sum(1 for amount in amounts if amount is not None) >= 2:
+            amount_row = row
+            break
+    if not amount_row:
+        return []
+
+    specs: list[dict[str, Any]] = []
+    bands = [_money_band_min(header) for header in band_headers]
+    for index, min_usage in enumerate(bands):
+        if min_usage is None or index >= len(amount_row):
+            continue
+        monthly_limit = normalize_money(amount_row[index])
+        if monthly_limit is None:
+            continue
+        next_min = next((band for band in bands[index + 1:] if band is not None), None)
+        specs.append(
+            {
+                "min_prev_month_usage": min_usage,
+                "max_prev_month_usage": next_min,
+                "monthly_limit_amount": monthly_limit,
+                "table_limit_desc": f"{band_headers[index]}: {amount_row[index]}",
+            }
+        )
+    return specs
+
+
+def _limit_specs_from_tables(tables: list[dict]) -> list[dict[str, Any]]:
+    for table in tables:
+        specs = _limit_specs_from_table(table)
+        if specs:
+            return specs
+    return []
+
+
+def _target_column_index(headers: list[str], row: list[str]) -> int:
+    for index, header in enumerate(headers):
+        if any(hint in header for hint in TARGET_HEADER_HINTS):
+            return index
+    return 1 if len(row) > 1 else 0
+
+
+def _table_row_category(label: str, target_text: str = "") -> str | None:
+    compact_label = _compact(label)
+    if re.fullmatch(r"[①②③④⑤⑥⑦⑧⑨⑩\d]+", compact_label):
+        return None
+    if re.fullmatch(r"\d+(?:\.\d+)?%", compact_label):
+        return None
+    if normalize_money(label) is not None or _money_band_min(label) is not None:
+        return None
+
+    category = _token_category(label)
+    if category:
+        return category
+    category = map_service_category("", label, target_text)
+    if category != "ETC":
+        return category
+    return None
+
+
+def _is_target_table(table: dict) -> bool:
+    if _is_ignored_table(table) or _is_limit_table(table):
+        return False
+
+    headers = _table_headers(table)
+    if any(any(hint in header for hint in TARGET_HEADER_HINTS) for header in headers):
+        return True
+
+    data_rows = _table_data_rows(table)
+    category_rows = 0
+    for row in data_rows:
+        if len(row) < 2:
+            continue
+        label = row[0]
+        target_text = row[_target_column_index(headers, row)]
+        if _table_row_category(label, target_text):
+            category_rows += 1
+    return category_rows >= 2
+
+
+def _benefit_value_phrase(main_title: str, sub_title: str, detail: str) -> str:
+    source = f"{sub_title}\n{detail}"
+    match = VALUE_WITH_SUFFIX_RE.search(source)
+    if match:
+        value = normalize_spaces(match.group(1))
+        suffix = normalize_spaces(match.group(2) or _default_suffix(infer_benefit_type(main_title, sub_title, detail)))
+        return normalize_spaces(f"{value} {suffix}")
+    unit_reward = parse_unit_reward_rate(source)
+    if unit_reward:
+        return normalize_spaces(unit_reward.get("raw") or "적립")
+    return _default_suffix(infer_benefit_type(main_title, sub_title, detail))
+
+
+def _contextual_brand_names(label: str, target_text: str, brand_candidates: list[str] | None = None) -> list[str]:
+    text = f"{label} {target_text}"
+    brand_names = extract_brand_names("", text, "", brand_candidates)
+    compact_target = _compact(target_text)
+    additions: list[str] = []
+
+    if "백화점" in label:
+        if "롯데" in compact_target:
+            additions.append("롯데백화점")
+        if "현대" in compact_target:
+            additions.append("현대백화점")
+        if "신세계" in compact_target:
+            additions.append("신세계백화점")
+    if "아울렛" in label:
+        if "롯데" in compact_target:
+            additions.append("롯데프리미엄아울렛")
+        if "현대" in compact_target:
+            additions.append("현대프리미엄아울렛")
+        if "신세계" in compact_target:
+            additions.append("신세계사이먼")
+    if "현대오일뱅크" in target_text and "현대오일뱅크" not in brand_names:
+        additions.append("현대오일뱅크")
+
+    return list(dict.fromkeys([*brand_names, *additions]))
+
+
+def _split_table_row_categories(label: str, target_text: str) -> list[tuple[str, str, str]]:
+    category = _table_row_category(label, target_text)
+    if not category:
+        return []
+    if label == "의료" and "약국" in target_text:
+        return [
+            ("의료", "병·의원, 동물병원", "HEALTH"),
+            ("약국", "약국", "PHARMACY"),
+        ]
+    return [(label, target_text, category)]
+
+
+def _target_items_from_tables(
+    card: dict,
+    benefit: dict,
+    original_order: int,
+    card_shared_limit_note: str,
+    brand_candidates: list[str] | None = None,
+) -> list[dict]:
+    tables = benefit.get("tables") or []
+    target_tables = [table for table in tables if _is_target_table(table)]
+    if not target_tables:
+        return []
+
+    main_title = benefit.get("main_title") or ""
+    sub_title = benefit.get("sub_title") or ""
+    detail = benefit.get("detail") or ""
+    value_phrase = _benefit_value_phrase(main_title, sub_title, detail)
+    limit_specs = _limit_specs_from_tables(tables)
+    original_desc = _benefit_desc(sub_title, detail)
+    shared_note = _shared_limit_note(f"{sub_title}\n{detail}") or card_shared_limit_note
+    shared_tag = _shared_limit_tag(card, original_order, shared_note) if shared_note else None
+
+    items: list[dict] = []
+    split_order = 1
+    for table in target_tables:
+        headers = _table_headers(table)
+        target_index = None
+        for row in _table_data_rows(table):
+            if len(row) < 2:
+                continue
+            if target_index is None:
+                target_index = _target_column_index(headers, row)
+            if target_index >= len(row):
+                continue
+            raw_label = row[0]
+            raw_target = row[target_index]
+            if not raw_label or not raw_target:
+                continue
+            if is_third_party_pay_benefit("", raw_label, "") or is_third_party_pay_benefit("", raw_target, ""):
+                continue
+            for label, target_text, category in _split_table_row_categories(raw_label, raw_target):
+                table_brands = _contextual_brand_names(label, target_text, brand_candidates)
+                item_sub_title = normalize_spaces(f"{label} {value_phrase}")
+                table_detail = "\n".join(
+                    part
+                    for part in [
+                        f"표 대상: {label} - {target_text}",
+                        table.get("context") or "",
+                        detail,
+                    ]
+                    if part
+                )
+                items.append(
+                    {
+                        **benefit,
+                        "main_title": "",
+                        "sub_title": item_sub_title,
+                        "detail": table_detail,
+                        "source_order": original_order,
+                        "split_order": split_order,
+                        "order_key": f"{original_order}_{split_order}",
+                        "description_override": original_desc,
+                        "shared_limit_tag": shared_tag,
+                        "table_source": True,
+                        "table_service_category": category,
+                        "table_brand_names": table_brands,
+                        "table_limit_specs": limit_specs,
+                        "table_target_label": label,
+                        "table_target_text": target_text,
+                    }
+                )
+                split_order += 1
+    return items
+
+
+def _apply_table_limit_specs(tiers: list[dict[str, Any]], specs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    if not specs or not tiers:
+        return tiers
+    base = tiers[0]
+    result: list[dict[str, Any]] = []
+    for spec in specs:
+        tier = {
+            **base,
+            "min_prev_month_usage": spec["min_prev_month_usage"],
+            "max_prev_month_usage": spec["max_prev_month_usage"],
+            "monthly_limit_amount": spec["monthly_limit_amount"],
+        }
+        desc = tier.get("tier_desc") or ""
+        limit_desc = f"[TABLE_LIMIT {spec['table_limit_desc']}]"
+        tier["tier_desc"] = f"{limit_desc} | {desc}" if desc else limit_desc
+        result.append(tier)
+    return result
+
+
 def expand_benefit_items(card: dict, benefit: dict, original_order: int, card_shared_limit_note: str = "") -> list[dict]:
     main_title = benefit.get("main_title") or ""
     sub_title = benefit.get("sub_title") or ""
     detail = benefit.get("detail") or ""
+
+    if not (
+        is_notice(main_title, sub_title)
+        or is_overseas(main_title, sub_title)
+        or is_third_party_pay_benefit(main_title, sub_title, detail)
+        or is_premium_or_voucher(main_title, sub_title)
+        or is_non_payment_benefit(main_title, sub_title)
+        or is_selectable_notice_only(main_title, sub_title, detail)
+    ):
+        table_items = _target_items_from_tables(card, benefit, original_order, card_shared_limit_note)
+        if table_items:
+            return table_items
+
     lines = [line.strip().strip(",") for line in sub_title.splitlines() if line.strip()]
     inherited_type = infer_benefit_type(main_title, sub_title, detail)
 
@@ -783,8 +1121,9 @@ def _process_benefit(
     if "[SELECT" in sub_title or "진심" in sub_title or "선택" in main_title:
         stats["selectable_benefits_seen"] += 1
 
-    brand_names = extract_brand_names(main_title, sub_title, detail, brand_candidates)
-    detail_only_brand_names = extract_detail_only_brand_candidates(main_title, sub_title, detail, brand_candidates)
+    table_brand_names = benefit.get("table_brand_names")
+    brand_names = table_brand_names if table_brand_names is not None else extract_brand_names(main_title, sub_title, detail, brand_candidates)
+    detail_only_brand_names = [] if benefit.get("table_source") else extract_detail_only_brand_candidates(main_title, sub_title, detail, brand_candidates)
     if detail_only_brand_names:
         possible_brand_review_items.append(
             {
@@ -795,7 +1134,7 @@ def _process_benefit(
             }
         )
 
-    if is_brand_restricted(main_title, sub_title, detail) and not brand_names:
+    if not benefit.get("table_source") and is_brand_restricted(main_title, sub_title, detail) and not brand_names:
         _add_skip(stats, skip_comments, card, benefit_order, "BRAND_WITHOUT_KEYWORD", benefit)
         return None, [], []
 
@@ -829,6 +1168,11 @@ def _process_benefit(
     if unit_probe:
         stats["unit_reward_converted"] += 1
 
+    table_limit_specs = benefit.get("table_limit_specs") or []
+    if table_limit_specs:
+        tiers = _apply_table_limit_specs(tiers, table_limit_specs)
+        stats["table_limit_tier_groups"] += len(table_limit_specs)
+
     shared_limit_tag = benefit.get("shared_limit_tag")
     if shared_limit_tag:
         stats["shared_limit_tagged_tiers"] += len(tiers)
@@ -836,7 +1180,8 @@ def _process_benefit(
             tier_desc = tier.get("tier_desc") or ""
             tier["tier_desc"] = f"{shared_limit_tag} | {tier_desc}" if tier_desc else shared_limit_tag
 
-    service_category = map_service_category(main_title, sub_title, detail)
+    category_main_title = "" if benefit.get("table_source") or str(benefit_order) != str(benefit.get("source_order", benefit_order)) else main_title
+    service_category = benefit.get("table_service_category") or map_service_category(category_main_title, sub_title, detail)
     if service_category == "ETC":
         stats["mapped_etc_category"] += 1
 
@@ -917,6 +1262,9 @@ def _summary(
         "expanded_benefit_items",
         "split_benefit_source_rows",
         "split_benefit_items",
+        "table_benefit_source_rows",
+        "table_benefit_items",
+        "table_limit_tier_groups",
         "shared_limit_tagged_tiers",
         "selectable_benefits_seen",
         "generated_selectable_benefit_sql_count",
@@ -1001,6 +1349,9 @@ def generate_seed_sql(cards_json_path: str | Path, ranks_json_path: str | Path, 
                 is_source_multiline = len([line for line in (benefit.get("sub_title") or "").splitlines() if line.strip()]) > 1
                 expanded_benefits = expand_benefit_items(card, benefit, benefit_order, card_shared_limit_note)
                 stats["expanded_benefit_items"] += len(expanded_benefits)
+                if any(item.get("table_source") for item in expanded_benefits):
+                    stats["table_benefit_source_rows"] += 1
+                    stats["table_benefit_items"] += len(expanded_benefits)
                 if len(expanded_benefits) > 1:
                     if is_source_multiline:
                         stats["multi_line_benefits"] += 1
@@ -1109,6 +1460,8 @@ def run_self_tests() -> None:
     assert mile and mile["unit_type"] == "MILE" and str(mile["rate"]) == "0.067"
     assert parse_unit_reward_rate("K-패스 마일리지 적립") is None
     assert is_premium_or_voucher("공항라운지/PP", "")
+    assert is_premium_or_voucher("", "유튜브프리미엄 정기결제 20% 청구할인")
+    assert not is_premium_or_voucher("", "프리미엄 아울렛 10% 청구할인")
     assert is_non_payment_benefit("수수료우대", "")
     assert map_service_category("국내 모든 가맹점", "", "") == "ALL"
     assert map_service_category("국내외가맹점", "", "") == "ALL"
@@ -1121,6 +1474,7 @@ def run_self_tests() -> None:
     assert not is_selectable_notice_only("", "[SELECT 1] 국내 가맹점 0.7% 할인", "")
     brands = extract_brand_names("", "스타벅스, 폴바셋 10% 할인", "")
     assert brands == ["스타벅스", "폴바셋"]
+    assert extract_brand_names("", "SSG COM, SSG.COM, SSG닷컴 7% 할인", "") == ["SSG.COM"]
     assert extract_brand_names("", "음식점/편의점/할인점/주유 7% 할인", "") == []
     tier = parse_tiers("", '카페 5% 할인\n전월실적 30만원 이상 / 월 할인한도 5,000원 / 1일 1회')[0]
     assert str(tier["rate"]) == "5.000"
@@ -1167,6 +1521,35 @@ def run_self_tests() -> None:
     )
     assert [map_service_category("", item["sub_title"], "") for item in play_split] == ["TAXI", "CAFE", "LEISURE"]
     assert extract_brand_names("", play_split[2]["sub_title"], "") == ["롯데시네마", "메가박스", "CGV"]
+    table_split = expand_benefit_items(
+        {"card_id": 2885},
+        {
+            "main_title": "할인",
+            "sub_title": "[SELECT 2] 온라인쇼핑몰/의료/배달앱 7% 할인",
+            "detail": "온라인쇼핑/의료/배달앱 7% 할인\n전월 이용금액대별 통합 월 할인한도",
+            "tables": [
+                {
+                    "context": "온라인쇼핑/의료/배달앱 7% 할인",
+                    "headers": ["구분", "할인 대상"],
+                    "rows": [
+                        ["온라인쇼핑몰", "쿠팡, 네이버플러스 스토어, SSG COM, G마켓, 옥션, 11번가, 컬리, 삼성카드 쇼핑"],
+                        ["의료", "병·의원, 약국, 동물병원"],
+                        ["배달앱", "배달의민족, 쿠팡이츠, 요기요"],
+                    ],
+                },
+                {
+                    "context": "전월 이용금액대별 통합 월 할인한도",
+                    "headers": ["40만원 이상", "80만원 이상", "120만원 이상"],
+                    "rows": [["7,000원", "10,000원", "15,000원"]],
+                },
+            ],
+        },
+        6,
+    )
+    assert [item["table_service_category"] for item in table_split] == ["SHOPPING", "HEALTH", "PHARMACY", "FOOD"]
+    assert table_split[0]["table_limit_specs"][0]["monthly_limit_amount"] == 7000
+    assert "네이버플러스 스토어" in table_split[0]["table_brand_names"]
+    assert "요기요" in table_split[3]["table_brand_names"]
     print("self-test passed")
 
 
