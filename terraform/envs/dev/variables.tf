@@ -14,3 +14,14 @@ variable "azs" {
 variable "private_subnets" {
   type = list(string)
 }
+
+variable "db_username" {
+  description = "DB 관리자 계정"
+  type        = string
+}
+
+variable "db_password" {
+  description = "DB 비밀번호"
+  type        = string
+  sensitive   = true
+}
