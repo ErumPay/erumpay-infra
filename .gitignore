@@ -4,3 +4,11 @@
 
 # Docker volumes / local temp
 mysql_data/
+
+
+# terraform/.gitignore
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+terraform.tfvars
