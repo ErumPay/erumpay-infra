@@ -4,3 +4,14 @@
 
 # Docker volumes / local temp
 mysql_data/
+
+# Python / Pixi local environments
+.pixi/
+__pycache__/
+*.py[cod]
+
+# Card benefit crawler outputs
+card_ids.json
+card_gorilla_cards.json
+card_gorilla_cards_*.json
+card_gorilla_cards_*.txt
