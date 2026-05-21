@@ -22,7 +22,7 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
 resource "aws_eks_cluster" "main" {
   name     = "erumpay-eks-cluster"
   role_arn = aws_iam_role.eks_cluster.arn
-  version  = "1.29"
+  version  = "1.31"
 
   vpc_config {
     # Private Subnet에 클러스터 배치
@@ -63,7 +63,7 @@ resource "aws_iam_role_policy_attachment" "node_policies" {
 }
 
 # namespace별 노드그룹 정의
-# pay/pg 각 2개, middleware/observability 각 1개 = 총 6개
+# pay/pg 각 2개, middleware/platform-operations 각 1개 = 총 6개
 locals {
   node_groups = {
     pay = {
@@ -81,7 +81,7 @@ locals {
       min     = 1
       max     = 2
     }
-    observability = {
+    platform-operations = {
       desired = 1
       min     = 1
       max     = 2
