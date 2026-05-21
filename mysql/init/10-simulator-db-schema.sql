@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS simulator_user (
 
 CREATE TABLE IF NOT EXISTS simulator_card_product (
   product_id    BIGINT       NOT NULL AUTO_INCREMENT,
-  card_company  VARCHAR(50)  NOT NULL                COMMENT '영문 enum name (예: SHINHAN)',
+  card_company  VARCHAR(50)  NOT NULL                COMMENT '카드사 한글명 (예: 신한카드)',
   product_name  VARCHAR(100) NOT NULL,
   created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at    DATETIME     NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS simulator_card (
   card_id              BIGINT       NOT NULL AUTO_INCREMENT,
   user_id              BIGINT       NOT NULL,
   product_id           BIGINT       NOT NULL,
-  card_company         VARCHAR(50)  NOT NULL                COMMENT '영문 enum name',
+  card_company         VARCHAR(50)  NOT NULL                COMMENT '카드사 한글명 (예: 신한카드)',
   card_number          VARCHAR(255) NOT NULL                COMMENT 'AES-256 암호화',
   masked_number        VARCHAR(25)  NOT NULL,
   expiry_date          VARCHAR(255) NOT NULL                COMMENT 'AES-256 암호화 (YYMM)',
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS simulator_card_token (
   token_id                BIGINT       NOT NULL AUTO_INCREMENT,
   card_token              VARCHAR(255) NULL DEFAULT NULL       COMMENT 'AES-256 암호화, 발급 실패 시 NULL',
   card_id                 BIGINT       NOT NULL,
-  card_company            VARCHAR(50)  NOT NULL                COMMENT '영문 enum name',
+  card_company            VARCHAR(50)  NOT NULL                COMMENT '카드사 한글명 (예: 신한카드)',
   pg_id                   VARCHAR(20)  NOT NULL,
   issue_idempotency_key   VARCHAR(64)  NOT NULL                COMMENT '발급 멱등성 키',
   delete_idempotency_key  VARCHAR(64)  NULL                    COMMENT '삭제 멱등성 키',
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS simulator_card_token (
 CREATE TABLE IF NOT EXISTS simulator_pre_approval (
   pre_approval_id           BIGINT       NOT NULL AUTO_INCREMENT,
   card_id                   BIGINT       NOT NULL,
-  card_company              VARCHAR(50)  NOT NULL                COMMENT '영문 enum name',
+  card_company              VARCHAR(50)  NOT NULL                COMMENT '카드사 한글명 (예: 신한카드)',
   pg_id                     VARCHAR(20)  NOT NULL,
   pg_txn_id                 BIGINT       NOT NULL                COMMENT 'PG 거래 ID',
   authorize_idempotency_key VARCHAR(64)  NOT NULL                COMMENT '가승인 멱등성 키',
@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS simulator_pre_approval (
 CREATE TABLE IF NOT EXISTS simulator_payment_history (
   payment_id              BIGINT       NOT NULL AUTO_INCREMENT,
   card_id                 BIGINT       NOT NULL,
-  card_company            VARCHAR(50)  NOT NULL                COMMENT '영문 enum name',
+  card_company            VARCHAR(50)  NOT NULL                COMMENT '카드사 한글명 (예: 신한카드)',
   pg_id                   VARCHAR(20)  NOT NULL,
   pg_txn_id               BIGINT       NOT NULL                COMMENT 'PG 거래 ID',
   origin_pg_txn_id        BIGINT       NULL                    COMMENT '원거래 PG 거래 ID (취소 row만 사용)',
