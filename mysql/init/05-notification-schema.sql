@@ -12,6 +12,7 @@ USE notification_db;
 CREATE TABLE IF NOT EXISTS notifications (
   notification_id BIGINT NOT NULL AUTO_INCREMENT,
   user_id BIGINT NOT NULL COMMENT 'auth_users 논리 참조',
+  event_id VARCHAR(100) NOT NULL COMMENT 'Kafka eventId, 중복 알림 생성 방지용',
   type ENUM('PAYMENT_DONE','PAYMENT_CANCELED','CARD_REGISTERED','CARD_DELETED','REMOTE_REQUEST','REMOTE_APPROVED','REMOTE_REJECTED','DUTCHPAY_INVITE','DUTCHPAY_JOINED','DUTCHPAY_TIMEOUT','FRIEND_REQUEST') NOT NULL,
   title VARCHAR(100) NOT NULL,
   content VARCHAR(500) NOT NULL,
@@ -23,6 +24,7 @@ CREATE TABLE IF NOT EXISTS notifications (
   read_at DATETIME NULL,
   updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (notification_id),
+  UNIQUE KEY uk_notifications_event_id (event_id),
   KEY idx_notifications_user_created (user_id, created_at),
   KEY idx_notifications_user_read (user_id, is_read),
   KEY idx_notifications_payment (payment_id),

@@ -32,7 +32,6 @@ CREATE TABLE IF NOT EXISTS pg_payment_ledger (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (pg_txn_id),
-  UNIQUE KEY uk_pg_payment_ledger_pay_payment (pay_payment_id),
   UNIQUE KEY uk_pg_payment_ledger_idempotency (idempotency_key),
   KEY idx_pg_payment_ledger_original (original_txn_id),
   KEY idx_pg_payment_ledger_hold (hold_txn_id),
