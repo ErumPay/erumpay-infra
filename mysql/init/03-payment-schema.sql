@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS dutch_pay_participants (
   participant_id BIGINT NOT NULL AUTO_INCREMENT,
   session_id BIGINT NOT NULL,
   user_id BIGINT NOT NULL COMMENT 'auth_users 논리 참조',
-  amount BIGINT NOT NULL,
+  amount BIGINT NULL COMMENT '초대/입장 단계에서는 NULL, 인원 확정 또는 금액 입력 후 확정',
   payment_id BIGINT NULL,
   status ENUM('INVITED','REJECTED','PENDING','PAID','TIMEOUT','HOST_PAID') NOT NULL DEFAULT 'INVITED',
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
