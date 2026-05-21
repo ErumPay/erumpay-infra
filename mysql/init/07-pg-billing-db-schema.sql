@@ -16,17 +16,21 @@ CREATE TABLE IF NOT EXISTS pg_billing_keys (
   pay_card_id        BIGINT       NOT NULL                COMMENT 'card_db.card_registered.card_id 논리 참조',
   card_token         VARCHAR(255) NULL DEFAULT NULL       COMMENT '카드사 발급 토큰, AES-256 암호화',
   masked_number      VARCHAR(25)  NULL DEFAULT NULL,
-  card_company       VARCHAR(50)  NULL DEFAULT NULL,
-  status             ENUM('PENDING','ACTIVE','DELETED','FAILED') NOT NULL DEFAULT 'PENDING'
-                     COMMENT 'PENDING: 카드사 응답 대기, ACTIVE: 사용 가능, DELETED: 비활성화, FAILED: 발급 실패',
+  card_company       VARCHAR(50)  NULL DEFAULT NULL       COMMENT '카드사 한글명 (예: 신한카드)',
+  status             ENUM('PENDING','ACTIVE','UNKNOWN','DELETED','FAILED') NOT NULL DEFAULT 'PENDING'
+                     COMMENT 'PENDING: 카드사 응답 대기, ACTIVE: 사용 가능, UNKNOWN: 발급/조회 모두 타임아웃(폴링 reconciliation 대기), DELETED: 비활성화, FAILED: 발급 실패',
+  unknown_since      DATETIME     NULL DEFAULT NULL       COMMENT 'UNKNOWN 진입 시각, reconciliation 추적용',
+  poll_retry_count   INT          NOT NULL DEFAULT 0      COMMENT 'reconciliation 폴링 시도 횟수',
+  next_poll_at       DATETIME     NULL DEFAULT NULL       COMMENT '다음 폴링 가능 시각, 지수 백오프',
   live_pay_card_id   BIGINT GENERATED ALWAYS AS
-                     (CASE WHEN status IN ('PENDING','ACTIVE') THEN pay_card_id ELSE NULL END) VIRTUAL
-                     COMMENT '진행 중(PENDING) 또는 활성(ACTIVE) 상태에서만 pay_card_id 노출. 동시 발급 및 중복 ACTIVE 차단용',
+                     (CASE WHEN status IN ('PENDING','ACTIVE','UNKNOWN') THEN pay_card_id ELSE NULL END) VIRTUAL
+                     COMMENT '진행 중(PENDING/UNKNOWN) 또는 활성(ACTIVE) 상태에서만 pay_card_id 노출. 동시 발급 및 중복 ACTIVE 차단용',
   created_at         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at         DATETIME     NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (billing_key_id),
   UNIQUE KEY uk_pg_billing_keys_idempotency (idempotency_key),
   UNIQUE KEY uk_pg_billing_keys_billing_key (billing_key),
   UNIQUE KEY uk_pg_billing_keys_live_card (live_pay_card_id),
-  KEY idx_pg_billing_keys_status_created (status, created_at)
+  KEY idx_pg_billing_keys_status_created (status, created_at),
+  KEY idx_pg_billing_keys_status_next_poll (status, next_poll_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

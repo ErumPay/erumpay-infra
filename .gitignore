@@ -12,3 +12,13 @@ mysql_data/
 *.tfstate.backup
 .terraform.lock.hcl
 terraform.tfvars
+# Python / Pixi local environments
+.pixi/
+__pycache__/
+*.py[cod]
+
+# Card benefit crawler outputs
+card_ids.json
+card_gorilla_cards.json
+card_gorilla_cards_*.json
+card_gorilla_cards_*.txt
