@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS pg_billing_keys (
   poll_retry_count   INT          NOT NULL DEFAULT 0      COMMENT 'reconciliation 폴링 시도 횟수',
   next_poll_at       DATETIME     NULL DEFAULT NULL       COMMENT '다음 폴링 가능 시각, 지수 백오프',
   live_pay_card_id   BIGINT GENERATED ALWAYS AS
-                     (CASE WHEN status IN ('PENDING','ACTIVE','UNKNOWN') THEN pay_card_id ELSE NULL END) VIRTUAL
-                     COMMENT '진행 중(PENDING/UNKNOWN) 또는 활성(ACTIVE) 상태에서만 pay_card_id 노출. 동시 발급 및 중복 ACTIVE 차단용',
+                     (CASE WHEN status IN ('PENDING','ACTIVE') THEN pay_card_id ELSE NULL END) VIRTUAL
+                     COMMENT '활성(ACTIVE) 또는 발급 중(PENDING) 상태에서만 pay_card_id 노출. UNKNOWN은 unique 슬롯 해제 — 폴링 회복 중에도 신규 발급 허용',
   created_at         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at         DATETIME     NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (billing_key_id),
