@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS pg_payment_ledger (
   reject_reason VARCHAR(200) NULL,
   failure_code VARCHAR(50) NULL,
   failure_message VARCHAR(255) NULL,
-  retry_count TINYINT NOT NULL DEFAULT 0,
+  retry_count BIGINT NOT NULL DEFAULT 0,
   approved_at DATETIME NULL,
   processed_at DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
