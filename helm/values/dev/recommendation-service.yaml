@@ -1,0 +1,23 @@
+nameOverride: recommendation-service
+fullnameOverride: recommendation-service
+replicaCount: 2
+
+image:
+  repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-northeast-2.amazonaws.com/recommendation-service"
+  tag: latest
+
+containerPort: 8084
+
+service:
+  port: 8084
+
+env:
+  DB_URL: jdbc:mysql://<RDS_ENDPOINT>:3306/recommend_db
+  KAFKA_BOOTSTRAP_SERVERS: kafka.middleware.svc.cluster.local:9092
+
+secretEnv:
+  DB_USERNAME: "<DB_USERNAME>"
+  DB_PASSWORD: "<DB_PASSWORD>"
+
+nodeSelector:
+  role: pay

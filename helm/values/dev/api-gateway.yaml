@@ -1,0 +1,23 @@
+nameOverride: api-gateway
+fullnameOverride: api-gateway
+replicaCount: 2
+
+image:
+  repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-northeast-2.amazonaws.com/api-gateway"
+  tag: latest
+
+containerPort: 8080
+
+service:
+  port: 8080
+
+nodeSelector:
+  role: platform-operations
+
+ingress:
+  enabled: true
+  hosts:
+    - host: api.dev.erumpay.com
+  paths:
+    - path: /
+      pathType: Prefix

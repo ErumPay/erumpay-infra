@@ -1,0 +1,22 @@
+nameOverride: pg-payment-service
+fullnameOverride: pg-payment-service
+replicaCount: 2
+
+image:
+  repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-northeast-2.amazonaws.com/pg-payment-service"
+  tag: latest
+
+containerPort: 8093
+
+service:
+  port: 8093
+
+env:
+  DB_URL: jdbc:mysql://<RDS_ENDPOINT>:3306/pg_payment_db
+
+secretEnv:
+  DB_USERNAME: "<DB_USERNAME>"
+  DB_PASSWORD: "<DB_PASSWORD>"
+
+nodeSelector:
+  role: pg

@@ -1,0 +1,58 @@
+nameOverride: ""
+fullnameOverride: ""
+
+replicaCount: 1
+
+image:
+  repository: ""
+  tag: latest
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: false
+  name: ""
+
+containerPort: 8080
+
+service:
+  type: ClusterIP
+  port: 80
+
+env: {}
+secretEnv: {}
+
+resources: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+ingress:
+  enabled: false
+  className: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+  hosts: []
+  paths:
+    - path: /
+      pathType: Prefix
+  tls: []
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 70
+
+readinessProbe:
+  enabled: true
+  path: /actuator/health/readiness
+  initialDelaySeconds: 20
+  periodSeconds: 10
+
+livenessProbe:
+  enabled: true
+  path: /actuator/health/liveness
+  initialDelaySeconds: 30
+  periodSeconds: 20
