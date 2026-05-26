@@ -1,0 +1,22 @@
+nameOverride: billing-key-service
+fullnameOverride: billing-key-service
+replicaCount: 2
+
+image:
+  repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-northeast-2.amazonaws.com/billing-key-service"
+  tag: latest
+
+containerPort: 8092
+
+service:
+  port: 8092
+
+env:
+  DB_URL: jdbc:mysql://<RDS_ENDPOINT>:3306/pg_billing_db
+
+secretEnv:
+  DB_USERNAME: "<DB_USERNAME>"
+  DB_PASSWORD: "<DB_PASSWORD>"
+
+nodeSelector:
+  role: pg
