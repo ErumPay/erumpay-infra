@@ -68,6 +68,24 @@ services:
     networks:
       - erumpay-network
 
+  redis:
+    image: redis:7.2-alpine
+    container_name: erumpay-redis
+    restart: unless-stopped
+
+    ports:
+      - "6379:6379"
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+    networks:
+      - erumpay-network
+
 volumes:
   mysql_data:
   kafka_data:
