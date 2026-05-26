@@ -7,6 +7,7 @@ image:
   repository: ""
   tag: latest
   pullPolicy: IfNotPresent
+imagePullSecrets: []
 
 serviceAccount:
   create: false
@@ -22,6 +23,13 @@ env: {}
 secretEnv: {}
 
 resources: {}
+
+podSecurityContext: {}
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
 
 nodeSelector: {}
 tolerations: []

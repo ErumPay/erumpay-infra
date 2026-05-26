@@ -66,7 +66,7 @@ eksctl create iamserviceaccount `
     --override-existing-serviceaccounts
 
 Write-Host "==> Installing AWS Load Balancer Controller with Helm"
-helm repo add eks https://aws.github.io/eks-charts
+helm repo add eks https://aws.github.io/eks-charts --force-update
 helm repo update eks
 
 helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller `
