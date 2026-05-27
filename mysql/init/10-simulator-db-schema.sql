@@ -141,9 +141,10 @@ CREATE TABLE IF NOT EXISTS simulator_response_code (
   response_message VARCHAR(255) NOT NULL                COMMENT '카드사 응답메시지',
   response_type    ENUM(
                      'SUCCESS',
+                     'CARD_NOT_FOUND',
                      'CARD_LOST','CARD_EXPIRED','CARD_DELETED',
-                     'CARD_INVALID_INFO','CARD_INVALID_PASSWORD',
-                     'TOKEN_NOT_FOUND','TOKEN_DUPLICATE',
+                     'CARD_INVALID_EXPIRY','CARD_INVALID_CVC','CARD_INVALID_PASSWORD',
+                     'TOKEN_NOT_FOUND','TOKEN_DUPLICATE','TOKEN_ALREADY_DELETED','TOKEN_ISSUE_NOT_FOUND',
                      'PAYMENT_LIMIT_EXCEEDED','PAYMENT_INSUFFICIENT_BALANCE','PAYMENT_REJECTED',
                      'TRANSACTION_NOT_FOUND','TRANSACTION_ALREADY_PROCESSED',
                      'USER_NOT_FOUND','USER_INVALID_INFO',
