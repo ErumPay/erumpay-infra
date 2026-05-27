@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS payment_orders (
   canceled_at DATETIME NULL,
   PRIMARY KEY (payment_id),
   UNIQUE KEY uk_payment_orders_order_no (order_no),
-  UNIQUE KEY uk_payment_orders_idempotency_key (idempotency_key),
+  UNIQUE KEY uk_payment_orders_user_idempotency_key (user_id, idempotency_key),
   KEY idx_payment_orders_user_created (user_id, created_at),
   KEY idx_payment_orders_merchant (merchant_id),
   KEY idx_payment_orders_status (payment_status),

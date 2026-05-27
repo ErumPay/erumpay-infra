@@ -1,0 +1,41 @@
+nameOverride: payment-service
+fullnameOverride: payment-service
+replicaCount: 2
+
+image:
+  repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-northeast-2.amazonaws.com/payment-service"
+  tag: latest
+
+containerPort: 8083
+
+service:
+  port: 8083
+
+env:
+  DB_URL: jdbc:mysql://<RDS_ENDPOINT>:3306/payment_db
+  QR_BASEURL: https://api.dev.erumpay.com/qr?token=
+  KAFKA_BOOTSTRAP_SERVERS: kafka.middleware.svc.cluster.local:9092
+  REDIS_HOST: redis.middleware.svc.cluster.local
+  REDIS_PORT: "6379"
+  AUTH_BASE_URL: auth-service.pay.svc.cluster.local:8081
+
+secretEnv:
+  DB_USERNAME: "<DB_USERNAME>"
+  DB_PASSWORD: "<DB_PASSWORD>"
+
+nodeSelector:
+  role: pay
+
+ingress:
+  enabled: true
+  hosts:
+    - host: api.dev.erumpay.com
+  paths:
+    - path: /api/v1/payment
+      pathType: Prefix
+    - path: /api/v1/dutch-pay
+      pathType: Prefix
+    - path: /internal/v1/dutch-pay
+      pathType: Prefix
+    - path: /qr
+      pathType: Prefix

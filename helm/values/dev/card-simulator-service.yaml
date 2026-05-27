@@ -1,0 +1,22 @@
+nameOverride: card-simulator-service
+fullnameOverride: card-simulator-service
+replicaCount: 2
+
+image:
+  repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-northeast-2.amazonaws.com/card-simulator-service"
+  tag: latest
+
+containerPort: 8095
+
+service:
+  port: 8095
+
+env:
+  DB_URL: jdbc:mysql://<RDS_ENDPOINT>:3306/simulator_db
+
+secretEnv:
+  DB_USERNAME: "<DB_USERNAME>"
+  DB_PASSWORD: "<DB_PASSWORD>"
+
+nodeSelector:
+  role: pg

@@ -1,0 +1,22 @@
+nameOverride: auth-service
+fullnameOverride: auth-service
+replicaCount: 2
+
+image:
+  repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-northeast-2.amazonaws.com/auth-service"
+  tag: latest
+
+containerPort: 8081
+
+service:
+  port: 8081
+
+env:
+  DB_URL: jdbc:mysql://<RDS_ENDPOINT>:3306/auth_db
+
+secretEnv:
+  DB_USERNAME: "<DB_USERNAME>"
+  DB_PASSWORD: "<DB_PASSWORD>"
+
+nodeSelector:
+  role: pay
