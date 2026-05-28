@@ -21,6 +21,7 @@ service:
 
 env: {}
 secretEnv: {}
+existingSecret: ""
 
 resources: {}
 
