@@ -39,15 +39,15 @@ spec:
             - name: http
               containerPort: {{ .Values.containerPort }}
               protocol: TCP
-          {{- if or .Values.env .Values.secretEnv }}
+          {{- if or .Values.env .Values.secretEnv .Values.existingSecret }}
           envFrom:
             {{- if .Values.env }}
             - configMapRef:
                 name: {{ include "erumpay-service.fullname" . }}-env
             {{- end }}
-            {{- if .Values.secretEnv }}
+            {{- if or .Values.secretEnv .Values.existingSecret }}
             - secretRef:
-                name: {{ include "erumpay-service.fullname" . }}-secret
+                name: {{ default (printf "%s-secret" (include "erumpay-service.fullname" .)) .Values.existingSecret }}
             {{- end }}
           {{- end }}
           {{- if .Values.readinessProbe.enabled }}

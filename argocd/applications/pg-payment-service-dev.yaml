@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: pg-payment-service-dev
+  namespace: platform-operations
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ErumPay/erumpay-infra.git
+    targetRevision: main
+    path: helm/charts/erumpay-service
+    helm:
+      releaseName: pg-payment-service
+      valueFiles:
+        - ../../values/dev/pg-payment-service.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: pg
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
