@@ -9,7 +9,9 @@ mysql_data/
 # terraform/.gitignore
 **/.terraform/
 *.tfstate
+*.tfstate.*
 *.tfstate.backup
+terraform.tfstate*
 .terraform.lock.hcl
 terraform.tfvars
 # Python / Pixi local environments
