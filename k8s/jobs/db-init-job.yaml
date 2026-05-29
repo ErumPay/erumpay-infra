@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: erumpay-db-init
+  namespace: platform-operations
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: db-init
+          image: 512138915880.dkr.ecr.ap-northeast-2.amazonaws.com/erumpay/db-init:latest
+          env:
+            - name: DB_HOST
+              value: erumpay-mysql.c1i4w0cia7ah.ap-northeast-2.rds.amazonaws.com
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: erumpay-rds-secret
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: erumpay-rds-secret
+                  key: DB_PASSWORD
