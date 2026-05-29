@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/ErumPay/erumpay-infra.git
-    targetRevision: main
+    targetRevision: develop
     path: helm/charts/erumpay-service
     helm:
       releaseName: pg-payment-service
