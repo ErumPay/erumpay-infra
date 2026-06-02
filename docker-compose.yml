@@ -196,6 +196,12 @@ services:
     restart: unless-stopped
     ports:
       - "8086:8086"
+    environment:
+      CARD_OCR_DEBUG_SAVE_PREPROCESSED: "true"
+      CARD_OCR_DEBUG_DIR: /app/data/debug
+    volumes:
+      - ../card-ocr-service/data/debug:/app/data/debug
+      - card_ocr_paddle_cache:/root/.paddleocr
     networks:
       - erumpay-network
 
@@ -281,6 +287,7 @@ services:
 volumes:
   mysql_data:
   kafka_data:
+  card_ocr_paddle_cache:
 
 networks:
   erumpay-network:
