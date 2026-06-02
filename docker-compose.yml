@@ -188,6 +188,17 @@ services:
     networks:
       - erumpay-network
 
+  card-ocr-service:
+    build:
+      context: ../card-ocr-service
+      dockerfile: Dockerfile
+    container_name: erumpay-card-ocr-service
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    networks:
+      - erumpay-network
+
   # payment-service:
   #   build:
   #     context: ../payment-service
