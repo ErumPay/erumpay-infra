@@ -26,7 +26,7 @@ resource "aws_eks_cluster" "main" {
 
   vpc_config {
     # Private Subnet에 클러스터 배치
-    subnet_ids         = var.private_subnet_ids
+    subnet_ids = var.private_subnet_ids
     # EKS 클러스터 보안그룹 연결
     security_group_ids = [var.eks_cluster_sg_id]
   }

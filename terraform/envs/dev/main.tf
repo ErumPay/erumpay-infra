@@ -28,6 +28,15 @@ module "rds" {
   db_password        = var.db_password
 }
 
+resource "aws_vpc_security_group_ingress_rule" "rds_mysql_from_eks_cluster" {
+  security_group_id            = module.security.rds_sg_id
+  referenced_security_group_id = module.eks.cluster_security_group_id
+  ip_protocol                  = "tcp"
+  from_port                    = 3306
+  to_port                      = 3306
+  description                  = "Allow MySQL from EKS cluster security group"
+}
+
 module "ecr" {
   source = "../../modules/ecr"
 }

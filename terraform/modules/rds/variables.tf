@@ -19,5 +19,5 @@ variable "db_username" {
 variable "db_password" {
   description = "DB 비밀번호"
   type        = string
-  sensitive   = true  # plan/apply 출력에서 마스킹됨
+  sensitive   = true # plan/apply 출력에서 마스킹됨
 }

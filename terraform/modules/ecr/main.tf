@@ -11,6 +11,7 @@ locals {
     "erumpay/pg-auth-service",
     "erumpay/billing-key-service",
     "erumpay/pg-payment-service",
+    "erumpay/db-init",
     "erumpay/merchant-service",
     "erumpay/card-simulator-service",
     "erumpay/mobile-app",
@@ -22,9 +23,10 @@ locals {
 resource "aws_ecr_repository" "main" {
   for_each = toset(local.repositories)
 
-  name                 = each.value
+  name = each.value
   # 이미지 덮어쓰기 허용 (같은 태그로 재배포 가능)
   image_tag_mutability = "MUTABLE"
+  force_delete         = true
 
   # 이미지 취약점 스캔 (push 시 자동 실행)
   image_scanning_configuration {

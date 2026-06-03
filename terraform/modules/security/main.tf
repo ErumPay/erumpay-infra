@@ -65,13 +65,5 @@ resource "aws_security_group" "rds" {
   description = "RDS Security Group"
   vpc_id      = var.vpc_id
 
-  # MySQL 포트 (EKS 노드 → RDS)
-  ingress {
-    from_port       = 3306
-    to_port         = 3306
-    protocol        = "tcp"
-    security_groups = [aws_security_group.eks_nodes.id]
-  }
-
   tags = { Name = "erumpay-rds-sg" }
 }
