@@ -12,10 +12,10 @@ resource "aws_internet_gateway" "main" {
 }
 
 resource "aws_subnet" "public" {
-  count             = 4
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = var.public_subnets[count.index]
-  availability_zone = var.azs[count.index]
+  count                   = 4
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.public_subnets[count.index]
+  availability_zone       = var.azs[count.index]
   map_public_ip_on_launch = true
 
   tags = { Name = "erumpay-public-${count.index + 1}" }
@@ -30,7 +30,7 @@ resource "aws_subnet" "private" {
   availability_zone = var.azs[count.index]
 
   tags = {
-    Name = "erumpay-private-${count.index + 1}"
+    Name                                        = "erumpay-private-${count.index + 1}"
     "kubernetes.io/role/internal-elb"           = "1"
     "kubernetes.io/cluster/erumpay-eks-cluster" = "shared"
   }
