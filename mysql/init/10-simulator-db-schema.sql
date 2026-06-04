@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS simulator_pre_approval (
   original_amount           BIGINT       NOT NULL,
   approved_amount           BIGINT       NOT NULL,
   pre_approval_number       VARCHAR(50)  NOT NULL                COMMENT '시뮬레이터 발급 가승인 번호',
-  pre_approval_status       ENUM('AUTHORIZED','CANCELED','FAILED') NOT NULL DEFAULT 'AUTHORIZED',
+  pre_approval_status       ENUM('AUTHORIZED','CANCELED','CAPTURED','FAILED') NOT NULL DEFAULT 'AUTHORIZED',
   response_code             VARCHAR(20)  NOT NULL                COMMENT '카드사 응답코드',
   response_message          VARCHAR(255) NOT NULL                COMMENT '카드사 응답메시지',
   created_at                DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
