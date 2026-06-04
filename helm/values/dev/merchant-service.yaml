@@ -3,7 +3,7 @@ fullnameOverride: merchant-service
 replicaCount: 2
 
 image:
-  repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-northeast-2.amazonaws.com/merchant-service"
+  repository: "512138915880.dkr.ecr.ap-northeast-2.amazonaws.com/erumpay/merchant-service"
   tag: latest
 
 containerPort: 8094
@@ -12,11 +12,10 @@ service:
   port: 8094
 
 env:
-  DB_URL: jdbc:mysql://<RDS_ENDPOINT>:3306/pg_merchant_db
+  DB_URL: "jdbc:mysql://erumpay-mysql.c1i4w0cia7ah.ap-northeast-2.rds.amazonaws.com:3306/pg_merchant_db"
 
-secretEnv:
-  DB_USERNAME: "<DB_USERNAME>"
-  DB_PASSWORD: "<DB_PASSWORD>"
+existingSecret: merchant-service-secret
+secretEnv: {}
 
 nodeSelector:
   role: pg
