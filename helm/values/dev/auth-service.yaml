@@ -3,7 +3,7 @@ fullnameOverride: auth-service
 replicaCount: 2
 
 image:
-  repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-northeast-2.amazonaws.com/auth-service"
+  repository: "512138915880.dkr.ecr.ap-northeast-2.amazonaws.com/erumpay/auth-service"
   tag: latest
 
 containerPort: 8081
@@ -12,11 +12,13 @@ service:
   port: 8081
 
 env:
-  DB_URL: jdbc:mysql://<RDS_ENDPOINT>:3306/auth_db
+  DB_URL: "jdbc:mysql://erumpay-mysql.c1i4w0cia7ah.ap-northeast-2.rds.amazonaws.com:3306/auth_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul"
+  KAKAO_CLIENT_ID: "3338ab0088875b9e2ba0e4a620d33ae0"
+  KAKAO_REDIRECT_URI: "http://<<localhost>>:8081/api/v1/auth/kakao/callback"
+  REDIS_HOST: "erumpay-redis.middleware.svc.cluster.local"
 
-secretEnv:
-  DB_USERNAME: "<DB_USERNAME>"
-  DB_PASSWORD: "<DB_PASSWORD>"
+existingSecret: auth-service-secret
+secretEnv: {}
 
 nodeSelector:
   role: pay

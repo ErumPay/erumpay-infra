@@ -3,7 +3,7 @@ fullnameOverride: api-gateway
 replicaCount: 2
 
 image:
-  repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-northeast-2.amazonaws.com/api-gateway"
+  repository: "512138915880.dkr.ecr.ap-northeast-2.amazonaws.com/erumpay/api-gateway"
   tag: latest
 
 containerPort: 8080
@@ -11,8 +11,22 @@ containerPort: 8080
 service:
   port: 8080
 
-nodeSelector:
-  role: platform-operations
+env:
+  AUTH_SERVICE_URI: "http://auth-service.pay.svc.cluster.local:8081"
+  CARD_SERVICE_URI: "http://card-service.pay.svc.cluster.local:8082"
+  PAYMENT_SERVICE_URI: "http://payment-service.pay.svc.cluster.local:8083"
+  RECOMMENDATION_SERVICE_URI: "http://recommendation-service.pay.svc.cluster.local:8084"
+  NOTIFICATION_SERVICE_URI: "http://notification-service.pay.svc.cluster.local:8085"
+  PG_AUTH_SERVICE_URI: "http://pg-auth-service.pg.svc.cluster.local:8091"
+  BILLING_KEY_SERVICE_URI: "http://billing-key-service.pg.svc.cluster.local:8092"
+  PG_PAYMENT_SERVICE_URI: "http://pg-payment-service.pg.svc.cluster.local:8093"
+  MERCHANT_SERVICE_URI: "http://merchant-service.pg.svc.cluster.local:8094"
+  CARD_SIMULATOR_SERVICE_URI: "http://card-simulator-service.pg.svc.cluster.local:8095"
+
+existingSecret: api-gateway-secret
+secretEnv: {}
+
+nodeSelector: {}
 
 ingress:
   enabled: true

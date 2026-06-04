@@ -12,7 +12,14 @@ service:
   port: 8093
 
 env:
-  DB_URL: jdbc:mysql://erumpay-mysql.c1i4w0cia7ah.ap-northeast-2.rds.amazonaws.com:3306/pg_payment_db
+  DB_URL: "jdbc:mysql://erumpay-mysql.c1i4w0cia7ah.ap-northeast-2.rds.amazonaws.com:3306/pg_payment_db"
+  PG_PAYMENT_PG_ID: "001"
+  PG_PAYMENT_RECONCILIATION_ENABLED: "true"
+  PG_PAYMENT_RECONCILIATION_FIXED_DELAY_MS: "5000"
+  PG_PAYMENT_RECONCILIATION_INITIAL_DELAY_MS: "1000"
+  PG_PAYMENT_RECONCILIATION_MINIMUM_AGE_SECONDS: "1"
+  PG_PAYMENT_RECONCILIATION_MAX_ATTEMPTS: "5"
+  PG_PAYMENT_RECONCILIATION_BATCH_SIZE: "100"
 
 existingSecret: pg-payment-service-secret
 secretEnv: {}

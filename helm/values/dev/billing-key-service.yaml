@@ -3,7 +3,7 @@ fullnameOverride: billing-key-service
 replicaCount: 2
 
 image:
-  repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-northeast-2.amazonaws.com/billing-key-service"
+  repository: "512138915880.dkr.ecr.ap-northeast-2.amazonaws.com/erumpay/billing-key-service"
   tag: latest
 
 containerPort: 8092
@@ -12,11 +12,11 @@ service:
   port: 8092
 
 env:
-  DB_URL: jdbc:mysql://<RDS_ENDPOINT>:3306/pg_billing_db
+  DB_URL: "jdbc:mysql://erumpay-mysql.c1i4w0cia7ah.ap-northeast-2.rds.amazonaws.com:3306/pg_billing_db"
+  CARD_SIMULATOR_BASE_URL: "http://card-simulator-service:8095"
 
-secretEnv:
-  DB_USERNAME: "<DB_USERNAME>"
-  DB_PASSWORD: "<DB_PASSWORD>"
+existingSecret: billing-key-service-secret
+secretEnv: {}
 
 nodeSelector:
   role: pg
