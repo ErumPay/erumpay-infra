@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: billing-key-service-dev
+  namespace: platform-operations
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ErumPay/erumpay-infra.git
+    targetRevision: develop
+    path: helm/charts/erumpay-service
+    helm:
+      releaseName: billing-key-service
+      valueFiles:
+        - ../../values/dev/billing-key-service.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: pg
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+      - CreateNamespace=true
