@@ -134,6 +134,7 @@ CREATE TABLE IF NOT EXISTS simulator_payment_history (
   CONSTRAINT fk_simulator_payment_history_card FOREIGN KEY (card_id) REFERENCES simulator_card(card_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+<<<<<<< Updated upstream
 CREATE TABLE IF NOT EXISTS simulator_response_code (
   code_id          BIGINT       NOT NULL AUTO_INCREMENT,
   category         ENUM('TOKEN','CARD','PAYMENT','TRANSACTION','USER') NOT NULL COMMENT '응답 카테고리',
@@ -160,6 +161,8 @@ CREATE TABLE IF NOT EXISTS simulator_response_code (
   UNIQUE KEY uk_simulator_response_code_category_type (category, response_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+=======
+>>>>>>> Stashed changes
 CREATE TABLE IF NOT EXISTS simulator_config (
   config_id      BIGINT        NOT NULL AUTO_INCREMENT,
   approval_rate  DECIMAL(5,2)  NOT NULL COMMENT '결제/가승인 승인률 (%)',
