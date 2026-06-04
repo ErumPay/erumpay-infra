@@ -40,3 +40,75 @@ resource "aws_vpc_security_group_ingress_rule" "rds_mysql_from_eks_cluster" {
 module "ecr" {
   source = "../../modules/ecr"
 }
+
+data "aws_caller_identity" "current" {}
+
+data "tls_certificate" "eks_oidc" {
+  url = module.eks.oidc_issuer_url
+}
+
+locals {
+  aws_region              = "ap-northeast-2"
+  external_secrets_sa     = "external-secrets"
+  external_secrets_ns     = "platform-operations"
+  external_secrets_secret = "erumpay/dev/all"
+  oidc_provider_hostpath  = replace(module.eks.oidc_issuer_url, "https://", "")
+}
+
+resource "aws_iam_openid_connect_provider" "eks" {
+  url = module.eks.oidc_issuer_url
+
+  client_id_list = [
+    "sts.amazonaws.com"
+  ]
+
+  thumbprint_list = [
+    data.tls_certificate.eks_oidc.certificates[0].sha1_fingerprint
+  ]
+}
+
+resource "aws_iam_policy" "external_secrets" {
+  name = "erumpay-external-secrets-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ]
+        Resource = "arn:aws:secretsmanager:${local.aws_region}:${data.aws_caller_identity.current.account_id}:secret:${local.external_secrets_secret}-*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role" "external_secrets" {
+  name = "erumpay-external-secrets-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.eks.arn
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "${local.oidc_provider_hostpath}:aud" = "sts.amazonaws.com"
+            "${local.oidc_provider_hostpath}:sub" = "system:serviceaccount:${local.external_secrets_ns}:${local.external_secrets_sa}"
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "external_secrets" {
+  role       = aws_iam_role.external_secrets.name
+  policy_arn = aws_iam_policy.external_secrets.arn
+}
