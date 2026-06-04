@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS simulator_pre_approval (
   original_amount           BIGINT       NOT NULL,
   approved_amount           BIGINT       NOT NULL,
   pre_approval_number       VARCHAR(50)  NOT NULL                COMMENT '시뮬레이터 발급 가승인 번호',
-  pre_approval_status       ENUM('AUTHORIZED','CANCELED','FAILED') NOT NULL DEFAULT 'AUTHORIZED',
+  pre_approval_status       ENUM('AUTHORIZED','CANCELED','CAPTURED','FAILED') NOT NULL DEFAULT 'AUTHORIZED',
   response_code             VARCHAR(20)  NOT NULL                COMMENT '카드사 응답코드',
   response_message          VARCHAR(255) NOT NULL                COMMENT '카드사 응답메시지',
   created_at                DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -132,32 +132,6 @@ CREATE TABLE IF NOT EXISTS simulator_payment_history (
   KEY idx_simulator_payment_history_origin_idem (origin_idempotency_key),
   KEY idx_simulator_payment_history_card_perf_status (card_id, performance_date, payment_status),
   CONSTRAINT fk_simulator_payment_history_card FOREIGN KEY (card_id) REFERENCES simulator_card(card_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-CREATE TABLE IF NOT EXISTS simulator_response_code (
-  code_id          BIGINT       NOT NULL AUTO_INCREMENT,
-  category         ENUM('TOKEN','CARD','PAYMENT','TRANSACTION','USER') NOT NULL COMMENT '응답 카테고리',
-  response_http    SMALLINT     NOT NULL                COMMENT '응답 HTTP 상태코드',
-  response_code    VARCHAR(20)  NOT NULL                COMMENT '카드사 응답코드',
-  response_reason  VARCHAR(50)  NOT NULL                COMMENT '응답 사유 식별자',
-  response_message VARCHAR(255) NOT NULL                COMMENT '카드사 응답메시지',
-  response_type    ENUM(
-                     'SUCCESS',
-                     'CARD_NOT_FOUND',
-                     'CARD_LOST','CARD_EXPIRED','CARD_DELETED',
-                     'CARD_INVALID_EXPIRY','CARD_INVALID_CVC','CARD_INVALID_PASSWORD',
-                     'CARD_PRODUCT_NOT_FOUND','CARD_NOT_OWNED',
-                     'TOKEN_NOT_FOUND','TOKEN_DUPLICATE','TOKEN_ALREADY_DELETED','TOKEN_ISSUE_NOT_FOUND',
-                     'PAYMENT_LIMIT_EXCEEDED','PAYMENT_INSUFFICIENT_BALANCE',
-                     'PAYMENT_CARD_EXPIRED','PAYMENT_CARD_LOST','PAYMENT_CARD_DELETED',
-                     'PAYMENT_TOKEN_INVALID','PAYMENT_CARD_NOT_FOUND',
-                     'TRANSACTION_NOT_FOUND','TRANSACTION_ALREADY_PROCESSED',
-                     'TRANSACTION_NOT_CANCELABLE','TRANSACTION_MISMATCH','TRANSACTION_TOKEN_MISMATCH',
-                     'USER_BIRTH_INVALID','USER_PHONE_INVALID'
-                   ) NOT NULL,
-  PRIMARY KEY (code_id),
-  UNIQUE KEY uk_simulator_response_code_code (response_code),
-  UNIQUE KEY uk_simulator_response_code_category_type (category, response_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS simulator_config (
