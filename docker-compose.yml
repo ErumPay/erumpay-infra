@@ -188,22 +188,22 @@ services:
     networks:
       - erumpay-network
 
-  card-ocr-service:
-    build:
-      context: ../card-ocr-service
-      dockerfile: Dockerfile
-    container_name: erumpay-card-ocr-service
-    restart: unless-stopped
-    ports:
-      - "8086:8086"
-    environment:
-      CARD_OCR_DEBUG_SAVE_PREPROCESSED: "false"
-      CARD_OCR_DEBUG_DIR: /app/data/debug
-    volumes:
-      - ../card-ocr-service/data/debug:/app/data/debug
-      - card_ocr_paddle_cache:/root/.paddleocr
-    networks:
-      - erumpay-network
+  # card-ocr-service:
+  #   build:
+  #     context: ../card-ocr-service
+  #     dockerfile: Dockerfile
+  #   container_name: erumpay-card-ocr-service
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8086:8086"
+  #   environment:
+  #     CARD_OCR_DEBUG_SAVE_PREPROCESSED: "false"
+  #     CARD_OCR_DEBUG_DIR: /app/data/debug
+  #   volumes:
+  #     - ../card-ocr-service/data/debug:/app/data/debug
+  #     - card_ocr_paddle_cache:/root/.paddleocr
+  #   networks:
+  #     - erumpay-network
 
   payment-service:
     build:
@@ -271,6 +271,8 @@ services:
     restart: unless-stopped
     ports:
       - "8084:8084"
+    env_file:
+      - ../recommendation-service/.env
     environment:
       DB_URL: jdbc:mysql://mysql:3306/recommend_db
       DB_USERNAME: root
@@ -284,121 +286,121 @@ services:
     networks:
       - erumpay-network
 
-  merchant-service:
-    build:
-      context: ../merchant-service
-      dockerfile: Dockerfile
-    container_name: erumpay-merchant-service
-    restart: unless-stopped
-    ports:
-      - "8094:8094"
-    environment:
-      DB_URL: jdbc:mysql://mysql:3306/pg_merchant_db
-      DB_USERNAME: root
-      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    depends_on:
-      mysql:
-        condition: service_healthy
-    networks:
-      - erumpay-network
+  # merchant-service:
+  #   build:
+  #     context: ../merchant-service
+  #     dockerfile: Dockerfile
+  #   container_name: erumpay-merchant-service
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8094:8094"
+  #   environment:
+  #     DB_URL: jdbc:mysql://mysql:3306/pg_merchant_db
+  #     DB_USERNAME: root
+  #     DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+  #   depends_on:
+  #     mysql:
+  #       condition: service_healthy
+  #   networks:
+  #     - erumpay-network
 
-  notification-service:
-    build:
-      context: ../notification-service
-      dockerfile: Dockerfile
-    container_name: erumpay-notification-service
-    restart: unless-stopped
-    ports:
-      - "8085:8085"
-    environment:
-      DB_URL: jdbc:mysql://mysql:3306/notification_db
-      DB_USERNAME: root
-      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      AUTH_BASE_URL: http://auth-service:8081
-    depends_on:
-      mysql:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-      auth-service:
-        condition: service_started
-    networks:
-      - erumpay-network
+  # notification-service:
+  #   build:
+  #     context: ../notification-service
+  #     dockerfile: Dockerfile
+  #   container_name: erumpay-notification-service
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8085:8085"
+  #   environment:
+  #     DB_URL: jdbc:mysql://mysql:3306/notification_db
+  #     DB_USERNAME: root
+  #     DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+  #     KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+  #     AUTH_BASE_URL: http://auth-service:8081
+  #   depends_on:
+  #     mysql:
+  #       condition: service_healthy
+  #     kafka:
+  #       condition: service_healthy
+  #     auth-service:
+  #       condition: service_started
+  #   networks:
+  #     - erumpay-network
 
-  pg-auth-service:
-    build:
-      context: ../pg-auth-service
-      dockerfile: Dockerfile
-    container_name: erumpay-pg-auth-service
-    restart: unless-stopped
-    ports:
-      - "8091:8091"
-    environment:
-      DB_URL: jdbc:mysql://mysql:3306/pg_auth_db
-      DB_USERNAME: root
-      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      JWT_SECRET: W07hxb4fJYxzJb5UzoqAWqzE8nCt25Z8N7QOHQD3pq1tRuglyJyInzuDBob00I0o
-      KAKAO_CLIENT_ID: f849747a4aceeba6d4ecdc77b40d7740
-      KAKAO_CLIENT_SECRET: ""
-      KAKAO_REDIRECT_URI: http://localhost:8091/api/v1/auth/login/oauth2/code/kakao
-      MERCHANT_SERVICE_URL: http://merchant-service:8094
-      INTERNAL_API_KEY: 2rF5eLaFiIJW2IlF7xjdfBbywuudtVztWJGt1f9ouRM=
-    depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      merchant-service:
-        condition: service_started
-    networks:
-      - erumpay-network
+  # pg-auth-service:
+  #   build:
+  #     context: ../pg-auth-service
+  #     dockerfile: Dockerfile
+  #   container_name: erumpay-pg-auth-service
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8091:8091"
+  #   environment:
+  #     DB_URL: jdbc:mysql://mysql:3306/pg_auth_db
+  #     DB_USERNAME: root
+  #     DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+  #     JWT_SECRET: W07hxb4fJYxzJb5UzoqAWqzE8nCt25Z8N7QOHQD3pq1tRuglyJyInzuDBob00I0o
+  #     KAKAO_CLIENT_ID: f849747a4aceeba6d4ecdc77b40d7740
+  #     KAKAO_CLIENT_SECRET: ""
+  #     KAKAO_REDIRECT_URI: http://localhost:8091/api/v1/auth/login/oauth2/code/kakao
+  #     MERCHANT_SERVICE_URL: http://merchant-service:8094
+  #     INTERNAL_API_KEY: 2rF5eLaFiIJW2IlF7xjdfBbywuudtVztWJGt1f9ouRM=
+  #   depends_on:
+  #     mysql:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #     merchant-service:
+  #       condition: service_started
+  #   networks:
+  #     - erumpay-network
 
-  api-gateway:
-    build:
-      context: ../api-gateway
-      dockerfile: Dockerfile
-    container_name: erumpay-api-gateway
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    environment:
-      JWT_SECRET: erumpay-auth-service-jwt-secret-key-must-be-at-least-256-bits-long-for-hs256
-      AUTH_SERVICE_URI: http://auth-service:8081/
-      CARD_SERVICE_URI: http://card-service:8082/
-      PAYMENT_SERVICE_URI: http://payment-service:8083/
-      RECOMMENDATION_SERVICE_URI: http://recommendation-service:8084/
-      NOTIFICATION_SERVICE_URI: http://notification-service:8085/
-      PG_AUTH_SERVICE_URI: http://pg-auth-service:8091/
-      BILLING_KEY_SERVICE_URI: http://billing-key-service:8092/
-      PG_PAYMENT_SERVICE_URI: http://pg-payment-service:8093/
-      MERCHANT_SERVICE_URI: http://merchant-service:8094/
-      CARD_SIMULATOR_SERVICE_URI: http://card-simulator-service:8095/
-    depends_on:
-      auth-service:
-        condition: service_started
-      card-service:
-        condition: service_started
-      payment-service:
-        condition: service_started
-      recommendation-service:
-        condition: service_started
-      notification-service:
-        condition: service_started
-      pg-auth-service:
-        condition: service_started
-      billing-key-service:
-        condition: service_started
-      pg-payment-service:
-        condition: service_started
-      merchant-service:
-        condition: service_started
-      card-simulator-service:
-        condition: service_started
-    networks:
-      - erumpay-network
+  # api-gateway:
+  #   build:
+  #     context: ../api-gateway
+  #     dockerfile: Dockerfile
+  #   container_name: erumpay-api-gateway
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     JWT_SECRET: erumpay-auth-service-jwt-secret-key-must-be-at-least-256-bits-long-for-hs256
+  #     AUTH_SERVICE_URI: http://auth-service:8081/
+  #     CARD_SERVICE_URI: http://card-service:8082/
+  #     PAYMENT_SERVICE_URI: http://payment-service:8083/
+  #     RECOMMENDATION_SERVICE_URI: http://recommendation-service:8084/
+  #     NOTIFICATION_SERVICE_URI: http://notification-service:8085/
+  #     PG_AUTH_SERVICE_URI: http://pg-auth-service:8091/
+  #     BILLING_KEY_SERVICE_URI: http://billing-key-service:8092/
+  #     PG_PAYMENT_SERVICE_URI: http://pg-payment-service:8093/
+  #     MERCHANT_SERVICE_URI: http://merchant-service:8094/
+  #     CARD_SIMULATOR_SERVICE_URI: http://card-simulator-service:8095/
+  #   depends_on:
+  #     auth-service:
+  #       condition: service_started
+  #     card-service:
+  #       condition: service_started
+  #     payment-service:
+  #       condition: service_started
+  #     recommendation-service:
+  #       condition: service_started
+  #     notification-service:
+  #       condition: service_started
+  #     pg-auth-service:
+  #       condition: service_started
+  #     billing-key-service:
+  #       condition: service_started
+  #     pg-payment-service:
+  #       condition: service_started
+  #     merchant-service:
+  #       condition: service_started
+  #     card-simulator-service:
+  #       condition: service_started
+  #   networks:
+  #     - erumpay-network
 
 volumes:
   mysql_data:
