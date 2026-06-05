@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS payment_orders (
   owner_name VARCHAR(50) NULL,
   contact_phone VARCHAR(20) NULL,
   business_address VARCHAR(255) NULL,
+  mcc VARCHAR(20) NULL,
   channel_type ENUM('ONLINE','OFFLINE') NOT NULL,
   payment_type ENUM('SINGLE','DUTCH','REMOTE') NULL,
   strategy_type ENUM('BENEFIT_SINGLE', 'BENEFIT_SPLIT', 'PERF_SINGLE', 'PERF_SPLIT'),
