@@ -13,7 +13,7 @@ spec:
       releaseName: litmus
   destination:
     server: https://kubernetes.default.svc
-    namespace: litmus
+    namespace: platform-operations
   syncPolicy:
     automated:
       selfHeal: true
