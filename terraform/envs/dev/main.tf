@@ -52,6 +52,8 @@ locals {
   external_secrets_sa     = "external-secrets"
   external_secrets_ns     = "platform-operations"
   external_secrets_secret = "erumpay/dev/all"
+  ebs_csi_sa              = "ebs-csi-controller-sa"
+  ebs_csi_ns              = "kube-system"
   oidc_provider_hostpath  = replace(module.eks.oidc_issuer_url, "https://", "")
 }
 
@@ -111,4 +113,54 @@ resource "aws_iam_role" "external_secrets" {
 resource "aws_iam_role_policy_attachment" "external_secrets" {
   role       = aws_iam_role.external_secrets.name
   policy_arn = aws_iam_policy.external_secrets.arn
+}
+
+resource "aws_iam_role" "ebs_csi" {
+  name = "erumpay-ebs-csi-driver-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Federated = aws_iam_openid_connect_provider.eks.arn
+      }
+      Action = "sts:AssumeRoleWithWebIdentity"
+      Condition = {
+        StringEquals = {
+          "${local.oidc_provider_hostpath}:aud" = "sts.amazonaws.com"
+          "${local.oidc_provider_hostpath}:sub" = "system:serviceaccount:${local.ebs_csi_ns}:${local.ebs_csi_sa}"
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ebs_csi" {
+  role       = aws_iam_role.ebs_csi.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+}
+
+resource "aws_eks_addon" "ebs_csi_driver" {
+  cluster_name             = module.eks.cluster_name
+  addon_name               = "aws-ebs-csi-driver"
+  service_account_role_arn = aws_iam_role.ebs_csi.arn
+
+  depends_on = [
+    aws_iam_role_policy_attachment.ebs_csi,
+    module.eks
+  ]
+}
+
+resource "null_resource" "gp2_default_storageclass" {
+  triggers = {
+    cluster_name = module.eks.cluster_name
+  }
+
+  provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
+    command     = "aws eks update-kubeconfig --region ap-northeast-2 --name ${module.eks.cluster_name} && kubectl patch storageclass gp2 -p '{\"metadata\":{\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"true\"}}}'"
+  }
+
+  depends_on = [module.eks]
 }
