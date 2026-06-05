@@ -31,8 +31,10 @@ aws secretsmanager describe-secret `
 
 ## 1. Terraform 실행
 
+`terraform.tfvars`에서 `db_username = "erumpay"`인지 확인 후 실행한다. `admin`으로 되어 있으면 RDS master user가 잘못 생성된다.
+
 ```powershell
-cd C:\erumpay\erumpay-infra\terraform\envs\dev
+cd C:\erum-pay\erumpay-infra\terraform\envs\dev
 
 terraform init
 terraform plan
@@ -49,6 +51,8 @@ ECR repositories
 RDS 보안그룹 EKS 접근 규칙
 EKS OIDC Provider
 External Secrets Operator용 IAM Role / Policy
+EBS CSI Driver addon (IRSA 포함)
+StorageClass gp2 default 자동 설정
 ```
 
 OIDC Provider가 이미 존재한다는 오류가 나면 삭제하지 말고 Terraform state로 import한다.
@@ -72,7 +76,7 @@ terraform apply
 ## 2. kubeconfig 설정
 
 ```powershell
-cd C:\erumpay\erumpay-infra
+cd C:\erum-pay\erumpay-infra
 .\scripts\k8s\update-kubeconfig.ps1
 ```
 
@@ -102,7 +106,7 @@ kubectl get ns
 ## 4. AWS Load Balancer Controller 설치
 
 ```powershell
-cd C:\erumpay\erumpay-infra
+cd C:\erum-pay\erumpay-infra
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\k8s\install-aws-load-balancer-controller.ps1
 ```
@@ -170,7 +174,7 @@ kubectl auth can-i list namespaces --as=system:serviceaccount:platform-operation
 Terraform이 만든 ESO IAM Role ARN을 가져온다.
 
 ```powershell
-cd C:\erumpay\erumpay-infra\terraform\envs\dev
+cd C:\erum-pay\erumpay-infra\terraform\envs\dev
 $EsoRoleArn = terraform output -raw external_secrets_role_arn
 ```
 
@@ -208,7 +212,7 @@ eks.amazonaws.com/role-arn: arn:aws:iam::<AWS_ACCOUNT_ID>:role/erumpay-external-
 수동으로 `kubectl create secret`을 실행하지 않는다. ExternalSecret이 AWS Secrets Manager의 `erumpay/dev/all`을 읽어서 Kubernetes Secret을 자동 생성한다.
 
 ```powershell
-cd C:\erumpay\erumpay-infra
+cd C:\erum-pay\erumpay-infra
 
 kubectl apply -f k8s\external-secrets\dev\cluster-secret-store.yaml
 kubectl apply -f k8s\external-secrets\dev
@@ -239,7 +243,7 @@ platform-operations에 erumpay-rds-secret 생성
 Terraform은 ECR repository를 만들지만 Docker image를 push하지 않는다. ECR repository가 새로 생성된 날에는 `db-init` 이미지를 push해야 한다.
 
 ```powershell
-cd C:\erumpay\erumpay-infra
+cd C:\erum-pay\erumpay-infra
 
 aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 512138915880.dkr.ecr.ap-northeast-2.amazonaws.com
 
@@ -255,7 +259,7 @@ docker push 512138915880.dkr.ecr.ap-northeast-2.amazonaws.com/erumpay/db-init:la
 RDS는 `mysql/init` SQL 파일을 자동 실행하지 않는다. RDS 생성 후 DB init Job을 실행해서 schema와 seed 데이터를 생성한다.
 
 ```powershell
-cd C:\erumpay\erumpay-infra
+cd C:\erum-pay\erumpay-infra
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\k8s\run-db-init.ps1
 ```
@@ -289,7 +293,7 @@ db-init은 서비스 CI에 넣지 않는다.
 모든 서비스의 Argo CD Application을 적용한다.
 
 ```powershell
-cd C:\erumpay\erumpay-infra
+cd C:\erum-pay\erumpay-infra
 kubectl apply -f argocd\applications
 ```
 

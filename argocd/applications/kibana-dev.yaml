@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kibana-dev
+  namespace: platform-operations
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: kibana
+    targetRevision: 12.1.10
+    helm:
+      releaseName: erumpay-kibana
+      values: |
+        global:
+          security:
+            allowInsecureImages: true
+        image:
+          registry: docker.io
+          repository: bitnamilegacy/kibana
+        replicaCount: 1
+        elasticsearch:
+          hosts:
+            - erumpay-elasticsearch.platform-operations.svc.cluster.local
+          port: 9200
+        volumePermissions:
+          image:
+            registry: docker.io
+            repository: bitnamilegacy/os-shell
+        persistence:
+          enabled: false
+        service:
+          type: ClusterIP
+        ingress:
+          enabled: false
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform-operations
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+      - CreateNamespace=true

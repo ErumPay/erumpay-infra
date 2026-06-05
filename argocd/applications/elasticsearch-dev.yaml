@@ -1,0 +1,57 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: elasticsearch-dev
+  namespace: platform-operations
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: elasticsearch
+    targetRevision: 22.1.6
+    helm:
+      releaseName: erumpay-elasticsearch
+      values: |
+        global:
+          security:
+            allowInsecureImages: true
+        image:
+          registry: docker.io
+          repository: bitnamilegacy/elasticsearch
+        security:
+          enabled: false
+        sysctlImage:
+          registry: docker.io
+          repository: bitnamilegacy/os-shell
+        volumePermissions:
+          image:
+            registry: docker.io
+            repository: bitnamilegacy/os-shell
+        master:
+          masterOnly: false
+          replicaCount: 1
+          heapSize: 512m
+          persistence:
+            enabled: false
+          resources:
+            requests:
+              cpu: 250m
+              memory: 768Mi
+            limits:
+              cpu: 750m
+              memory: 1Gi
+        data:
+          replicaCount: 0
+        coordinating:
+          replicaCount: 0
+        ingest:
+          replicaCount: 0
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform-operations
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+      - CreateNamespace=true

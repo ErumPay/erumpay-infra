@@ -371,6 +371,7 @@ services:
   #     - "8080:8080"
   #   environment:
   #     JWT_SECRET: erumpay-auth-service-jwt-secret-key-must-be-at-least-256-bits-long-for-hs256
+  #     PG_JWT_SECRET: W07hxb4fJYxzJb5UzoqAWqzE8nCt25Z8N7QOHQD3pq1tRuglyJyInzuDBob00I0o
   #     AUTH_SERVICE_URI: http://auth-service:8081/
   #     CARD_SERVICE_URI: http://card-service:8082/
   #     PAYMENT_SERVICE_URI: http://payment-service:8083/
