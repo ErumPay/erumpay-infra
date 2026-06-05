@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS payment_orders (
   amount BIGINT NOT NULL,
   payment_status ENUM('CREATED','PAY_PENDING','PG_PENDING','PAID','FAILED','EXPIRED','AUTHORIZED','VOIDED','CANCELED', 'CANCELED_REQUESTED') NOT NULL DEFAULT 'CREATED',
   idempotency_key VARCHAR(64) NULL,
+  pg_group_id BIGINT NULL,
   user_id BIGINT NULL COMMENT 'auth_users 논리 참조',
   merchant_id BIGINT NULL COMMENT 'pg_merchants 논리 참조',
   merchant_name VARCHAR(100) NULL,
