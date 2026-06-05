@@ -159,6 +159,7 @@ services:
       DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       AUTH_SERVICE_BASE_URL: http://auth-service:8081
       BILLING_KEY_SERVICE_BASE_URL: http://billing-key-service:8092
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       CARD_BILLING_KEY_AES_KEY: 0123456789abcdef
     depends_on:
       mysql:
@@ -167,6 +168,8 @@ services:
         condition: service_started
       billing-key-service:
         condition: service_started
+      kafka:
+        condition: service_healthy
     networks:
       - erumpay-network
 
