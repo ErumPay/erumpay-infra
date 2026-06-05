@@ -12,11 +12,21 @@ spec:
     helm:
       releaseName: erumpay-kibana
       values: |
+        global:
+          security:
+            allowInsecureImages: true
+        image:
+          registry: docker.io
+          repository: bitnamilegacy/kibana
         replicaCount: 1
         elasticsearch:
           hosts:
             - erumpay-elasticsearch.platform-operations.svc.cluster.local
           port: 9200
+        volumePermissions:
+          image:
+            registry: docker.io
+            repository: bitnamilegacy/os-shell
         persistence:
           enabled: false
         service:

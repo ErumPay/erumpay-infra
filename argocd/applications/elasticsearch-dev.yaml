@@ -12,8 +12,21 @@ spec:
     helm:
       releaseName: erumpay-elasticsearch
       values: |
+        global:
+          security:
+            allowInsecureImages: true
+        image:
+          registry: docker.io
+          repository: bitnamilegacy/elasticsearch
         security:
           enabled: false
+        sysctlImage:
+          registry: docker.io
+          repository: bitnamilegacy/os-shell
+        volumePermissions:
+          image:
+            registry: docker.io
+            repository: bitnamilegacy/os-shell
         master:
           masterOnly: false
           replicaCount: 1
