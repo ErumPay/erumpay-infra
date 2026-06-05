@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fluent-bit-dev
+  namespace: platform-operations
+spec:
+  project: default
+  source:
+    repoURL: https://fluent.github.io/helm-charts
+    chart: fluent-bit
+    targetRevision: 0.57.6
+    helm:
+      releaseName: erumpay-fluent-bit
+      values: |
+        kind: DaemonSet
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        config:
+          inputs: |
+            [INPUT]
+                Name tail
+                Path /var/log/containers/*.log
+                multiline.parser docker, cri
+                Tag kube.*
+                Mem_Buf_Limit 5MB
+                Skip_Long_Lines On
+
+          filters: |
+            [FILTER]
+                Name kubernetes
+                Match kube.*
+                Merge_Log On
+                Keep_Log Off
+                K8S-Logging.Parser On
+                K8S-Logging.Exclude On
+
+          outputs: |
+            [OUTPUT]
+                Name es
+                Match kube.*
+                Host erumpay-elasticsearch.platform-operations.svc.cluster.local
+                Port 9200
+                Logstash_Format On
+                Logstash_Prefix erumpay-dev-logs
+                Replace_Dots On
+                Suppress_Type_Name On
+                Retry_Limit False
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform-operations
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+      - CreateNamespace=true
