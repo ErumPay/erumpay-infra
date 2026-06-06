@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS payment_orders (
   order_no VARCHAR(64) NOT NULL,
   order_name VARCHAR(100) NOT NULL,
   amount BIGINT NOT NULL,
-  payment_status ENUM('CREATED','PAY_PENDING','PG_PENDING','PAID','FAILED','EXPIRED','AUTHORIZED','VOIDED','CANCELED', 'CANCELED_REQUESTED') NOT NULL DEFAULT 'CREATED',
+  payment_status ENUM('CREATED','PAY_PENDING','PG_PENDING','PAID','FAILED','EXPIRED','AUTHORIZED','VOIDED','CANCELED', 'CANCEL_REQUESTED') NOT NULL DEFAULT 'CREATED',
   idempotency_key VARCHAR(64) NULL,
   pg_group_id BIGINT NULL,
   user_id BIGINT NULL COMMENT 'auth_users 논리 참조',
@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS payment_orders (
   UNIQUE KEY uk_payment_orders_user_idempotency_key (user_id, idempotency_key),
   KEY idx_payment_orders_user_created (user_id, created_at),
   KEY idx_payment_orders_merchant (merchant_id),
+  KEY idx_payment_orders_user_payment_status (user_id, payment_status),
   KEY idx_payment_orders_status (payment_status),
   KEY idx_payment_orders_dutch_session (dutch_session_id),
   KEY idx_payment_orders_remote_request (remote_request_id)
