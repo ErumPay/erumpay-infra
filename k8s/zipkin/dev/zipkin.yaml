@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: erumpay-zipkin
+  namespace: platform-operations
+  labels:
+    app: erumpay-zipkin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: erumpay-zipkin
+  template:
+    metadata:
+      labels:
+        app: erumpay-zipkin
+    spec:
+      containers:
+        - name: zipkin
+          image: openzipkin/zipkin:3.6.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 9411
+          env:
+            - name: STORAGE_TYPE
+              value: mem
+            - name: JAVA_OPTS
+              value: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: erumpay-zipkin
+  namespace: platform-operations
+  labels:
+    app: erumpay-zipkin
+spec:
+  type: ClusterIP
+  selector:
+    app: erumpay-zipkin
+  ports:
+    - name: http
+      port: 9411
+      targetPort: http

@@ -12,6 +12,8 @@ service:
   port: 8093
 
 env:
+  ZIPKIN_ENDPOINT: "http://erumpay-zipkin.platform-operations.svc.cluster.local:9411/api/v2/spans"
+  TRACING_SAMPLING_PROBABILITY: "1.0"
   DB_URL: "jdbc:mysql://erumpay-mysql.c1i4w0cia7ah.ap-northeast-2.rds.amazonaws.com:3306/pg_payment_db"
   PG_PAYMENT_PG_ID: "001"
   PG_PAYMENT_RECONCILIATION_ENABLED: "true"
