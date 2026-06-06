@@ -12,6 +12,8 @@ service:
   port: 8080
 
 env:
+  ZIPKIN_ENDPOINT: "http://erumpay-zipkin.platform-operations.svc.cluster.local:9411/api/v2/spans"
+  TRACING_SAMPLING_PROBABILITY: "1.0"
   AUTH_SERVICE_URI: "http://auth-service.pay.svc.cluster.local:8081"
   CARD_SERVICE_URI: "http://card-service.pay.svc.cluster.local:8082"
   PAYMENT_SERVICE_URI: "http://payment-service.pay.svc.cluster.local:8083"

@@ -12,6 +12,8 @@ service:
   port: 8085
 
 env:
+  ZIPKIN_ENDPOINT: "http://erumpay-zipkin.platform-operations.svc.cluster.local:9411/api/v2/spans"
+  TRACING_SAMPLING_PROBABILITY: "1.0"
   DB_URL: "jdbc:mysql://erumpay-mysql.c1i4w0cia7ah.ap-northeast-2.rds.amazonaws.com:3306/notification_db"
   KAFKA_BOOTSTRAP_SERVERS: "erumpay-kafka.middleware.svc.cluster.local:29092"
   AUTH_BASE_URL: "http://auth-service:8081"
