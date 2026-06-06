@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS payment_events (
   event_id BIGINT NOT NULL AUTO_INCREMENT,
   payment_id BIGINT NOT NULL,
   pg_txn_id BIGINT NULL COMMENT 'pg_payment_ledger 논리 참조',
+  pg_group_id BIGINT NULL
   event_type ENUM('CREATED','PAY_PENDING','PG_PENDING','PAID','CANCEL_REQUESTED','CANCELED','FAILED','EXPIRED', 'AUTHORIZED','VOIDED') NOT NULL,
   fail_code VARCHAR(50) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -104,6 +105,7 @@ CREATE TABLE IF NOT EXISTS payment_cancel_history (
   payment_id BIGINT NOT NULL,
   amount BIGINT NULL,
   pg_txn_id BIGINT NULL COMMENT 'pg_payment_ledger 논리 참조',
+  pg_group_id BIGINT NULL
   pg_cancel_approval_num VARCHAR(50) NULL,
   fail_code VARCHAR(50) NULL,
   cancel_status ENUM('REQUESTED','PG_PENDING','CANCELLED','FAILED') NOT NULL DEFAULT 'REQUESTED',
