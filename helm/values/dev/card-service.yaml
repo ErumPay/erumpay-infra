@@ -17,6 +17,7 @@ env:
   DB_URL: "jdbc:mysql://erumpay-mysql.c1i4w0cia7ah.ap-northeast-2.rds.amazonaws.com:3306/card_db"
   AUTH_SERVICE_BASE_URL: "http://auth-service:8081"
   BILLING_KEY_SERVICE_BASE_URL: "http://billing-key-service.pg.svc.cluster.local:8092"
+  KAFKA_BOOTSTRAP_SERVERS: "erumpay-kafka.middleware.svc.cluster.local:29092"
 
 existingSecret: card-service-secret
 secretEnv: {}
