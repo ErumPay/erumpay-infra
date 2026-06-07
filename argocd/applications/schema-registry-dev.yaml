@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: schema-registry-dev
+  namespace: platform-operations
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ErumPay/erumpay-infra.git
+    targetRevision: develop
+    path: k8s/schema-registry/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: middleware
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+      - CreateNamespace=true

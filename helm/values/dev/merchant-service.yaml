@@ -15,6 +15,7 @@ env:
   ZIPKIN_ENDPOINT: "http://erumpay-zipkin.platform-operations.svc.cluster.local:9411/api/v2/spans"
   TRACING_SAMPLING_PROBABILITY: "1.0"
   DB_URL: "jdbc:mysql://erumpay-mysql.c1i4w0cia7ah.ap-northeast-2.rds.amazonaws.com:3306/pg_merchant_db"
+  SCHEMA_REGISTRY_URL: "http://erumpay-schema-registry.middleware.svc.cluster.local:18081"
 
 existingSecret: merchant-service-secret
 secretEnv: {}

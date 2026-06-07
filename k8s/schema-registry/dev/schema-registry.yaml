@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: erumpay-schema-registry
+  namespace: middleware
+  labels:
+    app: erumpay-schema-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: erumpay-schema-registry
+  template:
+    metadata:
+      labels:
+        app: erumpay-schema-registry
+    spec:
+      containers:
+        - name: schema-registry
+          image: confluentinc/cp-schema-registry:7.9.7
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8081
+          env:
+            - name: SCHEMA_REGISTRY_HOST_NAME
+              value: erumpay-schema-registry
+            - name: SCHEMA_REGISTRY_LISTENERS
+              value: http://0.0.0.0:8081
+            - name: SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS
+              value: PLAINTEXT://erumpay-kafka.middleware.svc.cluster.local:9092
+            - name: SCHEMA_REGISTRY_KAFKASTORE_TOPIC
+              value: _schemas
+            - name: SCHEMA_REGISTRY_SCHEMA_COMPATIBILITY_LEVEL
+              value: backward
+          readinessProbe:
+            httpGet:
+              path: /subjects
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /subjects
+              port: http
+            initialDelaySeconds: 40
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: erumpay-schema-registry
+  namespace: middleware
+  labels:
+    app: erumpay-schema-registry
+spec:
+  type: ClusterIP
+  selector:
+    app: erumpay-schema-registry
+  ports:
+    - name: http
+      port: 18081
+      targetPort: http
