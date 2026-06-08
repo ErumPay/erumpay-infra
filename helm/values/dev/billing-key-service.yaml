@@ -4,7 +4,7 @@ replicaCount: 2
 
 image:
   repository: "512138915880.dkr.ecr.ap-northeast-2.amazonaws.com/erumpay/billing-key-service"
-  tag: latest
+  tag: "c3c9fc0"
 
 containerPort: 8092
 
