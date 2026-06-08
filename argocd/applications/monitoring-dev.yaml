@@ -1,7 +1,7 @@
 # [be] 2026/06/08 03:22 | kube-prometheus-stack으로 Prometheus + Grafana 자동 배포
 # [be] 2026/06/08 03:22 | 13단계 kubectl apply -f argocd/applications 실행 시 자동으로 같이 뜸
-# [be] 2026/06/08 03:22 | Grafana 접속: kubectl port-forward svc/monitoring-grafana -n monitoring 3000:80 → http://localhost:3000 (admin / erumpay-dev)
-# [be] 2026/06/08 03:22 | Prometheus 접속: kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n monitoring 9090:9090 → http://localhost:9090
+# [be] 2026/06/08 03:22 | Grafana 접속: kubectl port-forward svc/monitoring-grafana -n platform-operations 3000:80 → http://localhost:3000 (admin / erumpay-dev)
+# [be] 2026/06/08 03:22 | Prometheus 접속: kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n platform-operations 9090:9090 → http://localhost:9090
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -62,7 +62,7 @@ spec:
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring
+    namespace: platform-operations
   syncPolicy:
     automated:
       selfHeal: true
