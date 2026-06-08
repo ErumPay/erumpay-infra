@@ -4,6 +4,7 @@ locals {
   repositories = [
     "erumpay/auth-service",
     "erumpay/card-service",
+    "erumpay/card-ocr-service",
     "erumpay/payment-service",
     "erumpay/recommendation-service",
     "erumpay/notification-service",
