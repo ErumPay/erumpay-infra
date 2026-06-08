@@ -1,0 +1,73 @@
+# [be] 2026/06/08 03:22 | kube-prometheus-stack으로 Prometheus + Grafana 자동 배포
+# [be] 2026/06/08 03:22 | 13단계 kubectl apply -f argocd/applications 실행 시 자동으로 같이 뜸
+# [be] 2026/06/08 03:22 | Grafana 접속: kubectl port-forward svc/monitoring-grafana -n monitoring 3000:80 → http://localhost:3000 (admin / erumpay-dev)
+# [be] 2026/06/08 03:22 | Prometheus 접속: kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n monitoring 9090:9090 → http://localhost:9090
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-dev
+  namespace: platform-operations
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 67.9.0
+    helm:
+      releaseName: monitoring
+      values: |
+        grafana:
+          # [be] 2026/06/08 03:22 | dev 환경 고정 비밀번호, 운영 전 Secret으로 교체 필요
+          adminPassword: erumpay-dev
+          persistence:
+            # [be] 2026/06/08 03:22 | dev는 AWS 올렸다 내렸다 하므로 PVC 미사용
+            enabled: false
+          dashboardProviders:
+            dashboardproviders.yaml:
+              apiVersion: 1
+              providers:
+                - name: default
+                  orgId: 1
+                  folder: ''
+                  type: file
+                  disableDeletion: false
+                  options:
+                    path: /var/lib/grafana/dashboards/default
+          dashboards:
+            default:
+              # [be] 2026/06/08 03:22 | LitmusChaos 공식 Grafana 대시보드 (실험 결과 시각화)
+              litmus-chaos:
+                gnetId: 13682
+                revision: 2
+                datasource: Prometheus
+
+        prometheus:
+          prometheusSpec:
+            retention: 24h
+            # [be] 2026/06/08 03:22 | false로 설정해야 litmus namespace 포함 클러스터 전체 ServiceMonitor 수집
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            # [be] 2026/06/08 03:22 | dev 환경: EBS PVC 없이 실행 (올렸다 내렸다 반복 대응)
+            storageSpec: {}
+
+        alertmanager:
+          # [be] 2026/06/08 03:22 | dev에서는 알림 불필요, prod 전환 시 enabled: true로 변경
+          enabled: false
+
+        nodeExporter:
+          enabled: true
+
+        kubeStateMetrics:
+          enabled: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+      - CreateNamespace=true
+      # [be] 2026/06/08 03:22 | kube-prometheus-stack CRD가 커서 client-side apply 크기 제한 초과 → ServerSideApply 필수
+      - ServerSideApply=true
