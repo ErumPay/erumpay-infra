@@ -16,8 +16,8 @@ env:
   TRACING_SAMPLING_PROBABILITY: "1.0"
   DB_URL: "jdbc:mysql://erumpay-mysql.c1i4w0cia7ah.ap-northeast-2.rds.amazonaws.com:3306/auth_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul"
   KAKAO_CLIENT_ID: "3338ab0088875b9e2ba0e4a620d33ae0"
-  KAKAO_REDIRECT_URI: "http://<<localhost>>:8081/api/v1/auth/kakao/callback"
-  REDIS_HOST: "erumpay-redis.middleware.svc.cluster.local"
+  KAKAO_REDIRECT_URI: "http://localhost:19000/auth/callback"
+  REDIS_HOST: "erumpay-redis-master.middleware.svc.cluster.local"
   SCHEMA_REGISTRY_URL: "http://erumpay-schema-registry.middleware.svc.cluster.local:18081"
 
 existingSecret: auth-service-secret

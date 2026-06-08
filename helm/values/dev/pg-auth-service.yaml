@@ -15,7 +15,7 @@ env:
   ZIPKIN_ENDPOINT: "http://erumpay-zipkin.platform-operations.svc.cluster.local:9411/api/v2/spans"
   TRACING_SAMPLING_PROBABILITY: "1.0"
   DB_URL: "jdbc:mysql://erumpay-mysql.c1i4w0cia7ah.ap-northeast-2.rds.amazonaws.com:3306/pg_auth_db"
-  REDIS_HOST: "erumpay-redis.middleware.svc.cluster.local"
+  REDIS_HOST: "erumpay-redis-master.middleware.svc.cluster.local"
   REDIS_PORT: "6379"
   KAKAO_CLIENT_ID: "f849747a4aceeba6d4ecdc77b40d7740"
   KAKAO_REDIRECT_URI: "https://api.dev.erumpay.com/api/v1/auth/login/oauth2/code/kakao"
