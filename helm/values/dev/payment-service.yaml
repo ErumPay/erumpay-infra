@@ -22,7 +22,7 @@ env:
   PG_BASE_URL: "http://pg-payment-service.pg.svc.cluster.local:8093/"
   KAFKA_BOOTSTRAP_SERVERS: "erumpay-kafka.middleware.svc.cluster.local:9092"
   SCHEMA_REGISTRY_URL: "http://erumpay-schema-registry.middleware.svc.cluster.local:18081"
-  REDIS_HOST: "erumpay-redis.middleware.svc.cluster.local"
+  REDIS_HOST: "erumpay-redis-master.middleware.svc.cluster.local"
   REDIS_PORT: "6379"
   PG_AUTHORIZATION: "Bearer server-test-token"
 
