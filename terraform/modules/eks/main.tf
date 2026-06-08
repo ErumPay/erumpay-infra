@@ -64,7 +64,7 @@ resource "aws_iam_role_policy_attachment" "node_policies" {
 }
 
 # namespace별 노드그룹 정의
-# pay/pg 각 2개, middleware/platform-operations 각 1개 = 총 6개
+# pay 2개, pg 3개, middleware 1개, platform-operations 2개 = 총 8개
 locals {
   node_groups = {
     pay = {
@@ -73,9 +73,9 @@ locals {
       max     = 3
     }
     pg = {
-      desired = 2
+      desired = 3  # 2 → 3
       min     = 1
-      max     = 3
+      max     = 4
     }
     middleware = {
       desired = 1
@@ -83,9 +83,9 @@ locals {
       max     = 2
     }
     platform-operations = {
-      desired = 1
+      desired = 2  # 1 → 2
       min     = 1
-      max     = 2
+      max     = 3
     }
   }
 }
