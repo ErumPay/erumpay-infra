@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: litmus-chaos-infra-dev
+  namespace: platform-operations
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ErumPay/erumpay-infra.git
+    targetRevision: develop
+    path: k8s/litmus/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform-operations
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+      - CreateNamespace=true
