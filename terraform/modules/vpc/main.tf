@@ -18,7 +18,12 @@ resource "aws_subnet" "public" {
   availability_zone       = var.azs[count.index]
   map_public_ip_on_launch = true
 
-  tags = { Name = "erumpay-public-${count.index + 1}" }
+  // [infra] 나영은 260609 1533 | AWS Load Balancer Controller가 internet-facing ALB용 public subnet을 자동 탐색하도록 태그를 부여한다.
+  tags = {
+    Name                                        = "erumpay-public-${count.index + 1}"
+    "kubernetes.io/role/elb"                    = "1"
+    "kubernetes.io/cluster/erumpay-eks-cluster" = "shared"
+  }
 }
 
 
