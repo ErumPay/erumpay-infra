@@ -4,7 +4,7 @@ replicaCount: 2
 
 image:
   repository: "512138915880.dkr.ecr.ap-northeast-2.amazonaws.com/erumpay/pg-auth-service"
-  tag: "2a60b78"
+  tag: "7671904"
 
 containerPort: 8091
 
