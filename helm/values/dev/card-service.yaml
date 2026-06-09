@@ -19,6 +19,7 @@ env:
   BILLING_KEY_SERVICE_BASE_URL: "http://billing-key-service.pg.svc.cluster.local:8092"
   KAFKA_BOOTSTRAP_SERVERS: "erumpay-kafka.middleware.svc.cluster.local:9092"
   SCHEMA_REGISTRY_URL: "http://erumpay-schema-registry.middleware.svc.cluster.local:18081"
+  CARD_SIMULATOR_BASE_URL: "http://card-simulator-service:8095/"
 
 existingSecret: card-service-secret
 secretEnv: {}
