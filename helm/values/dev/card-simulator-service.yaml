@@ -4,7 +4,7 @@ replicaCount: 2
 
 image:
   repository: "512138915880.dkr.ecr.ap-northeast-2.amazonaws.com/erumpay/card-simulator-service"
-  tag: "af7c142"
+  tag: "944c746"
 
 containerPort: 8095
 
