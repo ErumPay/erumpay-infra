@@ -33,7 +33,7 @@ nodeSelector:
   role: pay
 
 ingress:
-  enabled: true
+  enabled: false
   hosts:
     - host: api.dev.erumpay.com
   paths:
