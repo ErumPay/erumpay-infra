@@ -685,7 +685,7 @@ data:
   containerRuntimeExecutor: k8sapi
   executor: |
     imagePullPolicy: IfNotPresent
-  instanceID: 0898b246-c5e1-4607-acb0-4c1f02e9370c
+  instanceID: 2aa028d5-619f-441f-9e97-662da1303e6c
 ---
 apiVersion: v1
 kind: Service
@@ -715,7 +715,6 @@ spec:
       labels:
         app: workflow-controller
     spec:
-      tolerations: []
       
       #{NODE_SELECTOR}
       containers:
@@ -3881,7 +3880,6 @@ spec:
         name: chaos-operator
     spec:
       serviceAccountName: litmus
-      tolerations: []
       
       #{NODE_SELECTOR}
       containers:
@@ -3939,7 +3937,6 @@ spec:
         app: chaos-exporter
         release: prometheus-stack
     spec:
-      tolerations: []
       
       #{NODE_SELECTOR}
       containers:
@@ -4178,10 +4175,10 @@ metadata:
   name: subscriber-config
   namespace: platform-operations
 data:
-  SERVER_ADDR: http://litmus-server-service.platform-operations.svc.cluster.local:9002/query
+  SERVER_ADDR: http://localhost:9091/api/query
   INFRA_SCOPE: cluster
   VERSION: 3.26.0
-  START_TIME: "1780905143135"
+  START_TIME: "1780994236212"
   SKIP_SSL_VERIFY: "false"
   CUSTOM_TLS_CERT: ""
   IS_INFRA_CONFIRMED: "false"
@@ -4194,8 +4191,8 @@ metadata:
   name: subscriber-secret
   namespace: platform-operations
 stringData:
-  INFRA_ID: 0898b246-c5e1-4607-acb0-4c1f02e9370c
-  ACCESS_KEY: iNxUaO35Dw69aXpQlwh3vkWyAyhhT0Wd
+  INFRA_ID: 2aa028d5-619f-441f-9e97-662da1303e6c
+  ACCESS_KEY: 6m4iC3aazlyv48qtKCg7ysZLLY3ZlPsQ
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -4214,7 +4211,6 @@ spec:
         app: subscriber
     spec:
       serviceAccountName: litmus
-      tolerations: []
       
       #{NODE_SELECTOR}
       containers:
@@ -4261,7 +4257,6 @@ spec:
       labels:
         app: event-tracker
     spec:
-      tolerations: []
       
       #{NODE_SELECTOR}
       serviceAccountName: litmus
