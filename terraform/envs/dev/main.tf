@@ -54,7 +54,10 @@ locals {
   external_secrets_secret = "erumpay/dev/all"
   ebs_csi_sa              = "ebs-csi-controller-sa"
   ebs_csi_ns              = "kube-system"
-  oidc_provider_hostpath  = replace(module.eks.oidc_issuer_url, "https://", "")
+  // [infra] 나영은 260609 1533 | ALB Controller IRSA trust policy에서 허용할 Kubernetes ServiceAccount를 고정한다.
+  alb_controller_sa      = "aws-load-balancer-controller"
+  alb_controller_ns      = "kube-system"
+  oidc_provider_hostpath = replace(module.eks.oidc_issuer_url, "https://", "")
 }
 
 resource "aws_iam_openid_connect_provider" "eks" {
@@ -139,6 +142,40 @@ resource "aws_iam_role" "ebs_csi" {
 resource "aws_iam_role_policy_attachment" "ebs_csi" {
   role       = aws_iam_role.ebs_csi.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+}
+
+// [infra] 나영은 260609 1533 | aws-load-balancer-controller가 ALB, listener, target group, security group을 관리할 수 있는 IAM policy를 Terraform 상태로 관리한다.
+resource "aws_iam_policy" "aws_load_balancer_controller" {
+  name   = "AWSLoadBalancerControllerIAMPolicy"
+  policy = file("${path.module}/aws-load-balancer-controller-iam-policy.json")
+}
+
+// [infra] 나영은 260609 1533 | kube-system/aws-load-balancer-controller ServiceAccount가 OIDC 기반으로 AssumeRole 할 수 있는 IRSA role이다.
+resource "aws_iam_role" "aws_load_balancer_controller" {
+  name = "AmazonEKSLoadBalancerControllerRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Federated = aws_iam_openid_connect_provider.eks.arn
+      }
+      Action = "sts:AssumeRoleWithWebIdentity"
+      Condition = {
+        StringEquals = {
+          "${local.oidc_provider_hostpath}:aud" = "sts.amazonaws.com"
+          "${local.oidc_provider_hostpath}:sub" = "system:serviceaccount:${local.alb_controller_ns}:${local.alb_controller_sa}"
+        }
+      }
+    }]
+  })
+}
+
+// [infra] 나영은 260609 1533 | ALB Controller IRSA role에 AWS 리소스 관리 권한 policy를 연결한다.
+resource "aws_iam_role_policy_attachment" "aws_load_balancer_controller" {
+  role       = aws_iam_role.aws_load_balancer_controller.name
+  policy_arn = aws_iam_policy.aws_load_balancer_controller.arn
 }
 
 resource "aws_eks_addon" "ebs_csi_driver" {
