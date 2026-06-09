@@ -94,21 +94,15 @@ services:
     restart: unless-stopped
     ports:
       - '8081:8081'
+    env_file:
+      - ../auth-service/.env
     environment:
       DB_URL: 'jdbc:mysql://mysql:3306/auth_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul'
       DB_USERNAME: root
       DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      REDIS_HOST: redis # ############################# [fe] 조보름 260606 2104 | 로컬 FE 테스트용 dev token API(/api/v1/auth/dev/**) 활성화
-      SPRING_PROFILES_ACTIVE: dev # [fe] 조보름 260606 2115 | 로컬 SMS 인증 테스트용 Octomo API Key 주입
-      OCTOMO_API_KEY: ${OCTOMO_API_KEY} # ############################
+      REDIS_HOST: redis
 
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      JWT_SECRET: erumpay-auth-service-jwt-secret-key-must-be-at-least-256-bits-long-for-hs256
-      AES_SECRET_KEY: 0123456789abcdef0123456789abcdef
-      PHONE_HASH_SALT: erumpay-auth-phone-hash-salt-local
-      KAKAO_CLIENT_ID: 3338ab0088875b9e2ba0e4a620d33ae0
-      KAKAO_CLIENT_SECRET: gr9qHQkDbF22h1h3uqYorum8j8R6fojM
-      KAKAO_REDIRECT_URI: http://localhost:19000/auth/callback
     depends_on:
       mysql:
         condition: service_healthy
