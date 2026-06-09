@@ -26,6 +26,16 @@ env:
   REDIS_PORT: "6379"
   PG_AUTHORIZATION: "Bearer server-test-token"
 
+  RECOMMEND_BASE_URL: "http://recommendation-service:8084/"
+  CHECKOUT_REDIRECT_BASE_URL: "http://localhost:19000/payment/method-select?token="
+
+  REMOTE_PAY_FRIEND_VALIDATION_ENABLED: "true"
+
+  PAYMENT_EVENT_TOPIC: "payment.event"
+  DUTCH_EVENT_TOPIC: "dutch.event"
+  REMOTE_COMMAND_TOPIC: "remote.command"
+  REMOTE_EVENT_TOPIC: "remote.event"
+
 existingSecret: payment-service-secret
 secretEnv: {}
 
