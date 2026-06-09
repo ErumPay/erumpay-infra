@@ -205,18 +205,8 @@ services:
     restart: unless-stopped
     ports:
       - '8083:8083'
-    environment:
-      DB_URL: jdbc:mysql://mysql:3306/payment_db
-      DB_USERNAME: root
-      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      QR_BASEURL: http://payment-service:8083
-      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      AUTH_BASE_URL: http://auth-service:8081
-      PG_BASE_URL: http://pg-payment-service:8093
-      RECOMMEND_BASE_URL: http://recommendation-service:8084
-      CARD_BASE_URL: http://card-service:8082
+    env_file:
+      - ../payment-service/.env
     depends_on:
       mysql:
         condition: service_healthy
@@ -278,47 +268,47 @@ services:
     networks:
       - erumpay-network
 
-  # merchant-service:
-  #   build:
-  #     context: ../merchant-service
-  #     dockerfile: Dockerfile
-  #   container_name: erumpay-merchant-service
-  #   restart: unless-stopped
-  #   ports:
-  #     - "8094:8094"
-  #   environment:
-  #     DB_URL: jdbc:mysql://mysql:3306/pg_merchant_db
-  #     DB_USERNAME: root
-  #     DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-  #   depends_on:
-  #     mysql:
-  #       condition: service_healthy
-  #   networks:
-  #     - erumpay-network
+  merchant-service:
+    build:
+      context: ../merchant-service
+      dockerfile: Dockerfile
+    container_name: erumpay-merchant-service
+    restart: unless-stopped
+    ports:
+      - '8094:8094'
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/pg_merchant_db
+      DB_USERNAME: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - erumpay-network
 
-  # notification-service:
-  #   build:
-  #     context: ../notification-service
-  #     dockerfile: Dockerfile
-  #   container_name: erumpay-notification-service
-  #   restart: unless-stopped
-  #   ports:
-  #     - "8085:8085"
-  #   environment:
-  #     DB_URL: jdbc:mysql://mysql:3306/notification_db
-  #     DB_USERNAME: root
-  #     DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-  #     KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-  #     AUTH_BASE_URL: http://auth-service:8081
-  #   depends_on:
-  #     mysql:
-  #       condition: service_healthy
-  #     kafka:
-  #       condition: service_healthy
-  #     auth-service:
-  #       condition: service_started
-  #   networks:
-  #     - erumpay-network
+  notification-service:
+    build:
+      context: ../notification-service
+      dockerfile: Dockerfile
+    container_name: erumpay-notification-service
+    restart: unless-stopped
+    ports:
+      - '8085:8085'
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/notification_db
+      DB_USERNAME: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      AUTH_BASE_URL: http://auth-service:8081
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+    networks:
+      - erumpay-network
 
   # pg-auth-service:
   #   build:
