@@ -32,8 +32,18 @@ nodeSelector: {}
 
 ingress:
   enabled: true
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/healthcheck-path: /actuator/health/readiness
+    external-dns.alpha.kubernetes.io/hostname: api.eunna.store
   hosts:
-    - host: api.dev.erumpay.com
+    - host: api.eunna.store
   paths:
     - path: /
       pathType: Prefix
+  tls:
+    - hosts:
+        - api.eunna.store

@@ -23,3 +23,23 @@ output "aws_load_balancer_controller_role_arn" {
   description = "IAM role ARN used by the aws-load-balancer-controller service account."
   value       = aws_iam_role.aws_load_balancer_controller.arn
 }
+
+output "route53_zone_id" {
+  description = "Route53 public hosted zone ID for eunna.store."
+  value       = aws_route53_zone.public.zone_id
+}
+
+output "route53_name_servers" {
+  description = "Name servers to delegate from Gabia for eunna.store."
+  value       = aws_route53_zone.public.name_servers
+}
+
+output "api_acm_certificate_arn" {
+  description = "ACM certificate ARN for api.eunna.store."
+  value       = aws_acm_certificate.api.arn
+}
+
+output "external_dns_role_arn" {
+  description = "IAM role ARN used by the external-dns service account."
+  value       = aws_iam_role.external_dns.arn
+}
