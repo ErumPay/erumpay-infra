@@ -4191,8 +4191,8 @@ metadata:
   name: subscriber-secret
   namespace: platform-operations
 stringData:
-  INFRA_ID: ab6ef29f-d33f-4143-85c4-1db2cd8ce474
-  ACCESS_KEY: DdMoE-MRGlt2oKOmpvyQ7PTb5spsx4vC
+  INFRA_ID: fc0af9a4-8431-4716-a5f7-440a3dbf510c
+  ACCESS_KEY: UDN3dzalJZCQo5A-K7ndxYF4GVin2tPr
 ---
 apiVersion: apps/v1
 kind: Deployment
