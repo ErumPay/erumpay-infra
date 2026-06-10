@@ -18,3 +18,15 @@ spec:
       prune: false
     syncOptions:
       - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+  ignoreDifferences:
+    - kind: ConfigMap
+      name: subscriber-config
+      namespace: platform-operations
+      jsonPointers:
+        - /data/IS_INFRA_CONFIRMED
+    - kind: Secret
+      name: subscriber-secret
+      namespace: platform-operations
+      jsonPointers:
+        - /data/ACCESS_KEY
