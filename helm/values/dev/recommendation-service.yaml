@@ -17,6 +17,10 @@ env:
   DB_URL: "jdbc:mysql://erumpay-mysql.c1i4w0cia7ah.ap-northeast-2.rds.amazonaws.com:3306/recommend_db"
   KAFKA_BOOTSTRAP_SERVERS: "erumpay-kafka.middleware.svc.cluster.local:9092"
   SCHEMA_REGISTRY_URL: "http://erumpay-schema-registry.middleware.svc.cluster.local:18081"
+
+  CARD_SERVICE_BASE_URL: "http://card-service:8082/"
+  PAYMENT_SERVICE_BASE_URL: "http://payment-service:8083/"
+
   RECOMMENDATION_AI_SELECTOR_ENABLED: true
   RECOMMENDATION_AI_TIMEOUT_MS: 15000
   RECOMMENDATION_AI_MAX_CONTEXT_ITEMS: 20

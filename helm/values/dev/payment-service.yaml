@@ -15,7 +15,7 @@ env:
   ZIPKIN_ENDPOINT: "http://erumpay-zipkin.platform-operations.svc.cluster.local:9411/api/v2/spans"
   TRACING_SAMPLING_PROBABILITY: "1.0"
   DB_URL: "jdbc:mysql://erumpay-mysql.c1i4w0cia7ah.ap-northeast-2.rds.amazonaws.com:3306/payment_db"
-  QR_BASEURL: "http://<<localhost>>:8083/qr?token="
+  QR_BASEURL: "http://localhost:8083/qr?token="
   AUTH_BASE_URL: "http://auth-service:8081"
   RECOMMEND_BASE_URL: "http://recommendation-service:8084"
   CARD_BASE_URL: "http://card-service:8082"
