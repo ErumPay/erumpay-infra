@@ -57,6 +57,10 @@ locals {
   // [infra] 나영은 260609 1533 | ALB Controller IRSA trust policy에서 허용할 Kubernetes ServiceAccount를 고정한다.
   alb_controller_sa      = "aws-load-balancer-controller"
   alb_controller_ns      = "kube-system"
+  external_dns_sa        = "external-dns"
+  external_dns_ns        = "platform-operations"
+  public_zone_name       = "eunna.store"
+  api_domain_name        = "api.eunna.store"
   oidc_provider_hostpath = replace(module.eks.oidc_issuer_url, "https://", "")
 }
 
@@ -187,6 +191,99 @@ resource "aws_eks_addon" "ebs_csi_driver" {
     aws_iam_role_policy_attachment.ebs_csi,
     module.eks
   ]
+}
+
+resource "aws_route53_zone" "public" {
+  name = local.public_zone_name
+
+  tags = {
+    Name        = local.public_zone_name
+    Environment = "dev"
+    Project     = "erumpay"
+  }
+}
+
+resource "aws_acm_certificate" "api" {
+  domain_name       = local.api_domain_name
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = {
+    Name        = local.api_domain_name
+    Environment = "dev"
+    Project     = "erumpay"
+  }
+}
+
+resource "aws_route53_record" "api_certificate_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.api.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = aws_route53_zone.public.zone_id
+}
+
+resource "aws_iam_policy" "external_dns" {
+  name = "erumpay-external-dns-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "route53:ChangeResourceRecordSets"
+        ]
+        Resource = aws_route53_zone.public.arn
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "route53:ListHostedZones",
+          "route53:ListResourceRecordSets"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role" "external_dns" {
+  name = "erumpay-external-dns-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Federated = aws_iam_openid_connect_provider.eks.arn
+      }
+      Action = "sts:AssumeRoleWithWebIdentity"
+      Condition = {
+        StringEquals = {
+          "${local.oidc_provider_hostpath}:aud" = "sts.amazonaws.com"
+          "${local.oidc_provider_hostpath}:sub" = "system:serviceaccount:${local.external_dns_ns}:${local.external_dns_sa}"
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "external_dns" {
+  role       = aws_iam_role.external_dns.name
+  policy_arn = aws_iam_policy.external_dns.arn
 }
 
 resource "null_resource" "gp2_default_storageclass" {
