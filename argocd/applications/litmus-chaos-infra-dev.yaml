@@ -30,3 +30,4 @@ spec:
       namespace: platform-operations
       jsonPointers:
         - /data/ACCESS_KEY
+        - /stringData/ACCESS_KEY

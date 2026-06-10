@@ -4192,7 +4192,7 @@ metadata:
   namespace: platform-operations
 stringData:
   INFRA_ID: fc0af9a4-8431-4716-a5f7-440a3dbf510c
-  ACCESS_KEY: UDN3dzalJZCQo5A-K7ndxYF4GVin2tPr
+  ACCESS_KEY: o7SaLXSO9p0E8is6CsUvs1lFLq8Riq7aU8JP04NzTIA=
 ---
 apiVersion: apps/v1
 kind: Deployment
