@@ -38,7 +38,10 @@ CREATE TABLE IF NOT EXISTS pg_merchants (
 
 CREATE TABLE IF NOT EXISTS pg_settlements (
   settlement_id BIGINT NOT NULL AUTO_INCREMENT,
+  event_id VARCHAR(100) NOT NULL COMMENT 'Kafka settlement event id',
   merchant_id BIGINT NOT NULL,
+  payment_id BIGINT NOT NULL COMMENT 'payment_db.payment_orders.payment_id logical reference',
+  amount BIGINT NOT NULL COMMENT 'payment amount for this settlement event',
   period_type ENUM('DAILY','MONTHLY') NOT NULL,
   period_start DATE NOT NULL,
   period_end DATE NOT NULL,
@@ -50,14 +53,16 @@ CREATE TABLE IF NOT EXISTS pg_settlements (
   fee_rate DECIMAL(5,2) NOT NULL,
   payment_count BIGINT NOT NULL DEFAULT 0,
   cancel_count BIGINT NOT NULL DEFAULT 0,
-  status ENUM('PENDING','COMPLETED','FAILED') NOT NULL DEFAULT 'PENDING',
+  status ENUM('PENDING','COMPLETED','CANCELED','FAILED') NOT NULL DEFAULT 'PENDING',
   settled_at DATETIME NULL,
   expected_payment_date DATE NULL,
   fail_reason VARCHAR(200) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (settlement_id),
-  UNIQUE KEY uk_pg_settlements_merchant_period (merchant_id, period_type, period_start),
+  UNIQUE KEY uk_pg_settlements_event_id (event_id),
+  KEY idx_pg_settlements_payment (payment_id),
+  KEY idx_pg_settlements_merchant_period (merchant_id, period_type, period_start),
   KEY idx_pg_settlements_status (status),
   CONSTRAINT fk_pg_settlements_merchant FOREIGN KEY (merchant_id) REFERENCES pg_merchants(merchant_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
