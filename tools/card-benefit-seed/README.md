@@ -125,12 +125,14 @@ pixi run self-test
 - 브랜드 제한 혜택은 `card_benefit_brand`에 저장하고 카테고리 전체 혜택으로 확장하지 않습니다.
 - 타사 간편결제 전용 혜택은 ErumPay 결제에서 받을 수 없으므로 SKIP합니다.
 - `detail`의 "간편결제 제외" 문구만으로는 타사 페이 혜택으로 보지 않습니다.
-- 선택형 안내 row는 SKIP하고, 실제 수치가 있는 선택형 후보는 모두 저장합니다.
-- 현재 DB에는 사용자별 선택 옵션 저장 구조가 없으므로 추천 계산 시 실제 사용자가 선택하지 않은 혜택이 후보에 포함될 수 있습니다.
+- 선택형 안내 row는 SKIP하고, 실제 수치가 있는 선택형 후보는 동일 추천 매칭 단위에서 가장 유리한 후보 1개로 낙관 집계합니다.
+- 선택형 후보와 일반 후보가 같은 카드/카테고리/혜택 타입/조건/설명으로 충돌하면 더 유리한 후보를 저장합니다.
+- 현재 DB에는 사용자별 선택 옵션 저장 구조가 없으므로 실제 사용자가 선택한 혜택과 다를 수 있으며, MVP 추천 시연에서는 낙관적인 할인 가능성을 우선합니다.
 - 줄바꿈 또는 `/`, `·`로 나뉜 다중 혜택 row는 각 조각이 독립 혜택으로 파싱 가능한 경우에만 여러 `card_benefit` row로 분리합니다.
 - 크롤링 JSON의 `tables`에 `구분/할인 대상` 같은 대상 표가 있으면 표 행 기준으로 혜택을 분리합니다.
 - 표에 전월 이용금액대별 한도 표가 함께 있으면 `card_benefit_tier`를 실적 구간별로 생성합니다.
 - 표 기반 split도 유의사항/해외/타사페이/선택형 안내 row에서는 수행하지 않습니다.
+- split 혜택의 shared limit은 원문 태그만 보존하고 정밀 차감/분배는 의도적으로 무시합니다.
 - `card_benefit.priority`는 추천 우선순위 의미를 보존하기 위해 모두 `0`으로 저장합니다. 원본 순번은 SQL 변수명/주석에만 사용합니다.
 - 마일리지/포인트 단위형 적립은 `1마일/1포인트 = 1원` 기준으로 `rate`에 보수 환산합니다.
 - 환산 원문은 `tier_desc`의 `[UNIT_REWARD ...]` 태그로 보존합니다.
@@ -174,6 +176,6 @@ recommendation-service는 이 테이블을 사용할 때 다음 규칙을 따라
 
 `card_product`는 `source_card_id` 기준으로만 기존 row를 갱신합니다. `mock_bin`이 다른 `source_card_id`와 충돌하면 해당 카드의 insert를 막고 하위 혜택 SQL도 변수 guard로 실행되지 않게 합니다.
 
-`card_benefit`에는 현재 원본 혜택을 식별할 자연키 컬럼이 없습니다. 그래서 생성 SQL은 현재 컬럼 조합(`card_product_id`, `service_category`, `benefit_type`, 조건 컬럼, `benefit_desc`, `priority`)으로 동일 row를 찾아 같은 SQL 재실행 시 중복 insert를 막습니다. 다만 재크롤링이나 파싱 규칙 변경으로 설명/조건 값이 달라진 row는 별도 row로 판단될 수 있으므로, 전체 재시딩 전에는 기존 seed 데이터 정리 정책을 먼저 확인해야 합니다.
+`card_benefit`에는 현재 원본 혜택을 식별할 자연키 컬럼이 없습니다. 그래서 seed 생성기는 현재 컬럼 조합(`card_product_id`, `service_category`, `benefit_type`, 조건 컬럼, `benefit_desc`, `priority`)으로 충돌하는 후보를 SQL 생성 전에 낙관 집계하고, 같은 `min_prev_month_usage` 안에서는 더 유리한 tier만 남깁니다. 생성 SQL도 같은 조합으로 동일 row를 찾아 같은 SQL 재실행 시 중복 insert를 막습니다. 다만 재크롤링이나 파싱 규칙 변경으로 설명/조건 값이 달라진 row는 별도 row로 판단될 수 있으므로, 전체 재시딩 전에는 기존 seed 데이터 정리 정책을 먼저 확인해야 합니다.
 
 Docker init SQL은 MySQL 데이터 볼륨이 처음 생성될 때만 자동 실행됩니다. 이미 DB를 띄운 적 있으면 `docker compose down -v` 후 `docker compose up -d`해야 `11-seed-card-gorilla-cards.sql`이 자동 실행됩니다.

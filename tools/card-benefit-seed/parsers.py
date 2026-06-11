@@ -93,6 +93,56 @@ def normalize_spaces(text: str | None) -> str:
     return re.sub(r"\s+", " ", text or "").strip()
 
 
+def _split_usage_segments(text: str) -> list[str]:
+    return [
+        segment.strip(" \t\r\n-•·")
+        for segment in re.split(r"[\n\r;；]|\s*/\s*|\s*,\s*", text)
+        if segment.strip(" \t\r\n-•·")
+    ]
+
+
+def _is_usage_exception_segment(segment: str) -> bool:
+    normalized = re.sub(r"\s+", "", segment)
+    if re.search(r"전월(?:실적|이용금액|이용실적)?(?:에)?(?:관계없이|무관|없이|조건없음)", normalized):
+        return True
+    if any(keyword in normalized for keyword in ("발급월", "최초", "사용등록", "신규발급", "카드수령")) and any(
+        keyword in normalized for keyword in ("관계없이", "무관", "없는경우에도", "미만시에도", "제공")
+    ):
+        return True
+    return False
+
+
+def _parse_previous_month_amount_segment(segment: str) -> tuple[int | None, int | None] | None:
+    if _is_usage_exception_segment(segment):
+        return None
+
+    context = r"(?:전월|지난달|직전\s*(?:1개월|3개월\s*월평균))"
+    usage_words = r"(?:실적|이용\s*실적|이용금액|이용\s*금액|일시불\s*및\s*할부\s*이용금액|국내\s*가맹점\s*이용금액)?"
+    prefix = rf"{context}\s*{usage_words}"
+    range_match = re.search(
+        rf"{prefix}[^\n]{{0,45}}?(\d+(?:\.\d+)?)\s*만\s*원?\s*[~\-–]\s*(\d+(?:\.\d+)?)\s*만\s*원?",
+        segment,
+    )
+    if range_match:
+        return int(Decimal(range_match.group(1)) * 10_000), int(Decimal(range_match.group(2)) * 10_000)
+
+    min_match = re.search(
+        rf"{prefix}[^\n]{{0,45}}?(\d+(?:\.\d+)?)\s*만\s*원?\s*이상",
+        segment,
+    )
+    if min_match:
+        return int(Decimal(min_match.group(1)) * 10_000), None
+
+    loose_min_match = re.search(
+        rf"{prefix}[^\n]{{0,30}}?(\d+(?:\.\d+)?)\s*만\s*원?(?!\s*미만)\s*(?:시|적립|할인|캐시백|제공|$)",
+        segment,
+    )
+    if loose_min_match:
+        return int(Decimal(loose_min_match.group(1)) * 10_000), None
+
+    return None
+
+
 def normalize_money(text: str | None) -> int | None:
     if not text:
         return None
@@ -155,6 +205,11 @@ def parse_annual_fee(fee_text: str | None) -> int | None:
 def parse_previous_month_usage(text: str | None) -> tuple[int | None, int | None] | None:
     if not text:
         return None
+
+    for segment in _split_usage_segments(text):
+        usage = _parse_previous_month_amount_segment(segment)
+        if usage:
+            return usage
 
     if re.search(r"전월\s*(?:실적|이용금액)\s*에?\s*(?:관계없이|무관|없이|조건\s*없음)", text):
         return 0, None
@@ -236,8 +291,8 @@ def parse_flat_amount(text: str | None) -> int | None:
             return int(match.group(1).replace(",", ""))
 
     patterns = (
-        rf"({MONEY_PATTERN})\s*(?:[가-힣A-Za-z]+\s*){{0,3}}(?:할인|캐시백)",
-        rf"(?:할인|캐시백)\s*(?:[가-힣A-Za-z]+\s*){{0,3}}({MONEY_PATTERN})",
+        rf"({MONEY_PATTERN})\s*(?:[가-힣A-Za-z]+\s*){{0,3}}(?:할인|캐시백|정액\s*제공|제공)",
+        rf"(?:할인|캐시백|정액\s*제공|제공)\s*(?:[가-힣A-Za-z]+\s*){{0,3}}({MONEY_PATTERN})",
     )
     for pattern in patterns:
         for match in re.finditer(pattern, clean_text):
@@ -381,6 +436,13 @@ def _amount_after(patterns: tuple[str, ...], text: str) -> int | None:
     for pattern in patterns:
         match = re.search(pattern, text)
         if match:
+            compact_match = re.sub(r"\s+", "", match.group(0))
+            if "한도없이" in compact_match:
+                continue
+            if any(keyword in compact_match for keyword in ("전월", "지난달", "직전")) and any(
+                keyword in compact_match for keyword in ("실적", "이용금액")
+            ):
+                continue
             return normalize_money(match.group(1))
     return None
 
@@ -475,12 +537,49 @@ def parse_unit_reward_rate(text: str | None) -> dict[str, Any] | None:
 
 
 def _parse_range_tiers(text: str) -> list[tuple[int, int | None, int]]:
+    def is_performance_tier_match(match: re.Match) -> bool:
+        line_start = text.rfind("\n", 0, match.start()) + 1
+        line_end = text.find("\n", match.end())
+        if line_end < 0:
+            line_end = len(text)
+        line = text[line_start:line_end]
+        compact_line = re.sub(r"\s+", "", line)
+        if any(keyword in compact_line for keyword in ("건당", "건별", "1회", "승인금액", "결제시")) and not any(
+            keyword in compact_line for keyword in ("전월", "지난달", "직전", "실적구간", "통합할인한도")
+        ):
+            return False
+        if any(keyword in compact_line for keyword in ("전월", "지난달", "직전", "실적구간", "통합할인한도", "이용금액대별")):
+            before = re.sub(r"\s+", "", text[max(0, line_start - 500) : line_start])
+            if ("리워드" in before and "캐시백" in compact_line) or "캐시백만제공" in compact_line:
+                return False
+            return True
+
+        before = re.sub(r"\s+", "", text[max(0, line_start - 80) : line_start])
+        return any(keyword in before for keyword in ("전월이용금액대별", "전월실적", "실적구간", "통합할인한도"))
+
+    def parse_vertical_limit_tiers() -> list[tuple[int, int | None, int]]:
+        result: list[tuple[int, int | None, int]] = []
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        for index, line in enumerate(lines[:-1]):
+            context = re.sub(r"\s+", "", " ".join(lines[max(0, index - 6) : index + 1]))
+            if not any(keyword in context for keyword in ("할인기준", "적립기준", "캐시백기준", "할인한도", "적립한도", "통합할인한도")):
+                continue
+            threshold = re.fullmatch(r"(\d+(?:\.\d+)?)\s*만\s*원?\s*이상", line)
+            if not threshold:
+                continue
+            amount = normalize_money(lines[index + 1])
+            if amount:
+                result.append((int(Decimal(threshold.group(1)) * 10_000), None, amount))
+        return result
+
     tiers: list[tuple[int, int | None, int]] = []
     range_pattern = (
-        rf"(\d+(?:\.\d+)?)\s*만\s*원?\s*[~\-–]\s*(\d+(?:\.\d+)?)\s*만\s*원?"
-        rf"[^\n:：]{{0,20}}[:：]?\s*({MONEY_PATTERN})"
+        rf"(\d+(?:\.\d+)?)\s*만\s*원?\s*(?:이상|초과)?\s*[~\-–]\s*(\d+(?:\.\d+)?)\s*만\s*원?\s*(?:미만|이하)?"
+        rf"[^\n:：]{{0,30}}[:：]?[ \t]*[^\n\d]{{0,30}}[ \t]*({MONEY_PATTERN})"
     )
     for match in re.finditer(range_pattern, text):
+        if not is_performance_tier_match(match):
+            continue
         min_usage = int(Decimal(match.group(1)) * 10_000)
         max_usage = int(Decimal(match.group(2)) * 10_000)
         amount = normalize_money(match.group(3))
@@ -489,13 +588,19 @@ def _parse_range_tiers(text: str) -> list[tuple[int, int | None, int]]:
 
     min_pattern = (
         rf"(\d+(?:\.\d+)?)\s*만\s*원?\s*이상"
-        rf"[^\n:：]{{0,20}}[:：]?\s*({MONEY_PATTERN})"
+        rf"[^\n:：]{{0,20}}[:：]?[ \t]*[^\n\d]{{0,30}}[ \t]*({MONEY_PATTERN})"
     )
     for match in re.finditer(min_pattern, text):
+        if not is_performance_tier_match(match):
+            continue
         min_usage = int(Decimal(match.group(1)) * 10_000)
         amount = normalize_money(match.group(2))
         if amount and not any(existing[0] == min_usage for existing in tiers):
             tiers.append((min_usage, None, amount))
+
+    for min_usage, max_usage, amount in parse_vertical_limit_tiers():
+        if not any(existing[0] == min_usage for existing in tiers):
+            tiers.append((min_usage, max_usage, amount))
 
     return sorted(tiers, key=lambda item: item[0])
 
@@ -522,7 +627,12 @@ def parse_tiers(card_before_month: str | None, benefit_text: str | None) -> list
     if rate is not None and not (Decimal("0") < rate < Decimal("100")):
         return []
 
-    usage = parse_previous_month_usage(clean_text) or parse_previous_month_usage(card_before_month) or (0, None)
+    usage = (
+        parse_previous_month_usage(clean_text)
+        or parse_previous_month_usage(benefit_text)
+        or parse_previous_month_usage(card_before_month)
+        or (0, None)
+    )
     limit_counts = parse_limit_counts(clean_text)
     limit_amounts = parse_limit_amounts(clean_text)
     range_tiers = _parse_range_tiers(clean_text)
@@ -538,7 +648,7 @@ def parse_tiers(card_before_month: str | None, benefit_text: str | None) -> list
         tier_desc_parts.append(f"전체 원문: {normalize_spaces(clean_text)}")
     tier_desc = " | ".join(tier_desc_parts) if tier_desc_parts else normalize_spaces(clean_text)
 
-    if range_tiers and rate is not None:
+    if range_tiers:
         tiers = []
         for min_usage, max_usage, monthly_limit in range_tiers:
             tiers.append(
