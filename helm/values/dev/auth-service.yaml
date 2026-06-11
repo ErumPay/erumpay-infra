@@ -4,7 +4,7 @@ replicaCount: 2
 
 image:
   repository: "512138915880.dkr.ecr.ap-northeast-2.amazonaws.com/erumpay/auth-service"
-  tag: "66cc5ea"
+  tag: "2df6a01"
 
 containerPort: 8081
 

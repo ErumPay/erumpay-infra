@@ -11,13 +11,6 @@ spec:
     targetRevision: 3.26.0
     helm:
       releaseName: litmus
-      values: |
-        mongodb:
-          architecture: standalone
-          auth:
-            rootPassword: "1234"
-          persistence:
-            enabled: false
   destination:
     server: https://kubernetes.default.svc
     namespace: platform-operations

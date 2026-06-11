@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
 
     ports:
-      - '${MYSQL_PORT}:3306'
+      - "${MYSQL_PORT}:3306"
 
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -22,7 +22,11 @@ services:
       - ./mysql/conf.d:/etc/mysql/conf.d
 
     healthcheck:
-      test: ['CMD-SHELL', 'mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD}']
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -37,7 +41,7 @@ services:
     restart: unless-stopped
 
     ports:
-      - '9092:9092'
+      - "9092:9092"
 
     environment:
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
@@ -59,7 +63,11 @@ services:
       - kafka_data:/var/lib/kafka/data
 
     healthcheck:
-      test: ['CMD-SHELL', 'kafka-topics --bootstrap-server localhost:9092 --list >/dev/null 2>&1']
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-topics --bootstrap-server localhost:9092 --list >/dev/null 2>&1",
+        ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -74,10 +82,10 @@ services:
     restart: unless-stopped
 
     ports:
-      - '6379:6379'
+      - "6379:6379"
 
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -93,11 +101,11 @@ services:
     container_name: erumpay-auth-service
     restart: unless-stopped
     ports:
-      - '8081:8081'
+      - "8081:8081"
     env_file:
       - ../auth-service/.env
     environment:
-      DB_URL: 'jdbc:mysql://mysql:3306/auth_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul'
+      DB_URL: "jdbc:mysql://mysql:3306/auth_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul"
       DB_USERNAME: root
       DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       REDIS_HOST: redis
@@ -120,7 +128,7 @@ services:
     container_name: erumpay-billing-key-service
     restart: unless-stopped
     ports:
-      - '8092:8092'
+      - "8092:8092"
     environment:
       DB_URL: jdbc:mysql://mysql:3306/pg_billing_db
       DB_USERNAME: root
@@ -141,7 +149,7 @@ services:
     container_name: erumpay-card-service
     restart: unless-stopped
     ports:
-      - '8082:8082'
+      - "8082:8082"
     env_file:
       - ../card-service/.env
     depends_on:
@@ -163,7 +171,7 @@ services:
     container_name: erumpay-card-simulator-service
     restart: unless-stopped
     ports:
-      - '8095:8095'
+      - "8095:8095"
     environment:
       DB_URL: jdbc:mysql://mysql:3306/simulator_db
       DB_USERNAME: root
@@ -190,6 +198,22 @@ services:
       - card_ocr_paddle_cache:/root/.paddleocr
     networks:
       - erumpay-network
+  card-ocr-service:
+    build:
+      context: ../card-ocr-service
+      dockerfile: Dockerfile
+    container_name: erumpay-card-ocr-service
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      CARD_OCR_DEBUG_SAVE_PREPROCESSED: "false"
+      CARD_OCR_DEBUG_DIR: /app/data/debug
+    volumes:
+      - ../card-ocr-service/data/debug:/app/data/debug
+      - card_ocr_paddle_cache:/root/.paddleocr
+    networks:
+      - erumpay-network
 
   payment-service:
     build:
@@ -198,7 +222,7 @@ services:
     container_name: erumpay-payment-service
     restart: unless-stopped
     ports:
-      - '8083:8083'
+      - "8083:8083"
     env_file:
       - ../payment-service/.env
     depends_on:
@@ -224,7 +248,7 @@ services:
     container_name: erumpay-pg-payment-service
     restart: unless-stopped
     ports:
-      - '8093:8093'
+      - "8093:8093"
     environment:
       DB_URL: jdbc:mysql://mysql:3306/pg_payment_db
       DB_USERNAME: root
@@ -246,7 +270,7 @@ services:
     container_name: erumpay-recommendation-service
     restart: unless-stopped
     ports:
-      - '8084:8084'
+      - "8084:8084"
     env_file:
       - ../recommendation-service/.env
     environment:
@@ -375,8 +399,8 @@ services:
         condition: service_started
       notification-service:
         condition: service_started
-      pg-auth-service:
-        condition: service_started
+      # pg-auth-service:
+      #   condition: service_started
       billing-key-service:
         condition: service_started
       pg-payment-service:
