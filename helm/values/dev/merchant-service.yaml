@@ -17,6 +17,8 @@ env:
   DB_URL: "jdbc:mysql://erumpay-mysql.c1i4w0cia7ah.ap-northeast-2.rds.amazonaws.com:3306/pg_merchant_db"
   KAFKA_BOOTSTRAP_SERVERS: "erumpay-kafka.middleware.svc.cluster.local:9092"
   SCHEMA_REGISTRY_URL: "http://erumpay-schema-registry.middleware.svc.cluster.local:18081"
+  JWT_SECRET: "W07hxb4fJYxzJb5UzoqAWqzE8nCt25Z8N7QOHQD3pq1tRuglyJyInzuDBob00I0o"
+  INTERNAL_API_KEY: "2rF5eLaFiIJW2IlF7xjdfBbywuudtVztWJGt1f9ouRM="
 
 existingSecret: merchant-service-secret
 secretEnv: {}
