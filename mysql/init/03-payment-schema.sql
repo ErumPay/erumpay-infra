@@ -148,6 +148,7 @@ CREATE TABLE IF NOT EXISTS dutch_pay_sessions (
   timeout_at DATETIME NULL,
   warning_1_sent_at DATETIME NULL,
   warning_2_sent_at DATETIME NULL,
+  payment_requested_at DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   completed_at DATETIME NULL,
