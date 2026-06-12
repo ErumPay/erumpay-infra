@@ -1,0 +1,23 @@
+# Litmus chaos-exporter용 ServiceMonitor를 ArgoCD로 배포한다.
+# monitoring-dev(kube-prometheus-stack)가 ServiceMonitor CRD를 먼저 만든 뒤 sync되며,
+# 순서가 어긋나도 selfHeal로 재시도되어 결국 동기화된다.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: chaos-exporter-monitor-dev
+  namespace: platform-operations
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ErumPay/erumpay-infra.git
+    targetRevision: develop
+    path: k8s/monitoring/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform-operations
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,23 @@
+# Litmus chaos-exporter 메트릭을 Prometheus가 스크랩하도록 연결한다.
+# 이 ServiceMonitor가 있어야 Grafana의 LitmusChaos 대시보드(gnetId 13682)에 데이터가 채워진다.
+# Prometheus는 serviceMonitorSelectorNilUsesHelmValues=false 설정이라 별도 release 라벨 없이도 수집한다.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: chaos-exporter
+  namespace: platform-operations
+  labels:
+    app: chaos-exporter
+    release: monitoring
+spec:
+  jobLabel: app
+  selector:
+    matchLabels:
+      app: chaos-exporter
+  namespaceSelector:
+    matchNames:
+      - platform-operations
+  endpoints:
+    - targetPort: 8080
+      path: /metrics
+      interval: 10s
