@@ -198,22 +198,6 @@ services:
       - card_ocr_paddle_cache:/root/.paddleocr
     networks:
       - erumpay-network
-  card-ocr-service:
-    build:
-      context: ../card-ocr-service
-      dockerfile: Dockerfile
-    container_name: erumpay-card-ocr-service
-    restart: unless-stopped
-    ports:
-      - "8086:8086"
-    environment:
-      CARD_OCR_DEBUG_SAVE_PREPROCESSED: "false"
-      CARD_OCR_DEBUG_DIR: /app/data/debug
-    volumes:
-      - ../card-ocr-service/data/debug:/app/data/debug
-      - card_ocr_paddle_cache:/root/.paddleocr
-    networks:
-      - erumpay-network
 
   payment-service:
     build:
@@ -399,8 +383,8 @@ services:
         condition: service_started
       notification-service:
         condition: service_started
-      # pg-auth-service:
-      #   condition: service_started
+      pg-auth-service:
+        condition: service_started
       billing-key-service:
         condition: service_started
       pg-payment-service:
