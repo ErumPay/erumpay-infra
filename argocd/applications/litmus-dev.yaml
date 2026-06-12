@@ -11,6 +11,14 @@ spec:
     targetRevision: 3.26.0
     helm:
       releaseName: litmus
+      values: |
+        mongodb:
+          replicaCount: 1
+          persistence:
+            enabled: true
+            storageClass: "ebs-retain"
+            accessMode: ReadWriteOnce
+            size: 20Gi
   destination:
     server: https://kubernetes.default.svc
     namespace: platform-operations
