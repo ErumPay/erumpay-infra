@@ -39,7 +39,6 @@ ingress:
     alb.ingress.kubernetes.io/ssl-redirect: '443'
     alb.ingress.kubernetes.io/healthcheck-path: /actuator/health/readiness
     external-dns.alpha.kubernetes.io/hostname: api.eunna.store
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:512138915880:certificate/b0bacf85-6310-419d-8b98-132687db99ef
   hosts:
     - host: api.eunna.store
   paths:
