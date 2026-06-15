@@ -39,6 +39,13 @@ env:
 existingSecret: payment-service-secret
 secretEnv: {}
 
+# 카오스(pod-memory-hog) 데모용 메모리 제한 — 한도 초과 시 OOMKilled→자동 재기동 확인
+resources:
+  requests:
+    memory: "512Mi"
+  limits:
+    memory: "768Mi"
+
 nodeSelector:
   role: pay
 
