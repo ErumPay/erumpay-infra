@@ -73,7 +73,7 @@ locals {
       max     = 3
     }
     pg = {
-      desired = 3  # 2 → 3
+      desired = 3 # 2 → 3
       min     = 1
       max     = 4
     }
@@ -83,7 +83,7 @@ locals {
       max     = 2
     }
     platform-operations = {
-      desired = 2  # 1 → 2
+      desired = 2 # 1 → 2
       min     = 1
       max     = 3
     }
