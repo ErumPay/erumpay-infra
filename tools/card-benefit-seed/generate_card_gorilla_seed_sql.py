@@ -62,6 +62,10 @@ SKIP_COUNTERS = {
 }
 
 OPTIMISTIC_UNCAPPED_RATE_SCORE = Decimal("1000000000000")
+MOCK_BIN_OVERRIDES = {
+    # 시연용 실물 노리체크카드 BIN. card-service는 카드번호 앞 6자리로 상품을 매칭한다.
+    "348": "527289",
+}
 
 
 def _compact(text: str | None) -> str:
@@ -186,7 +190,11 @@ def build_mock_bin_map(cards: list[dict]) -> tuple[dict[str, str], list[str], li
             overflow.append(f"{corp}:{card_type}:{card.get('card_id')}")
             continue
 
-        mock_bins[str(card.get("card_id"))] = generate_mock_bin(corp, card_type, sequence)
+        source_card_id = str(card.get("card_id"))
+        mock_bins[source_card_id] = MOCK_BIN_OVERRIDES.get(
+            source_card_id,
+            generate_mock_bin(corp, card_type, sequence),
+        )
 
     return mock_bins, sorted(set(mapped_other)), overflow
 

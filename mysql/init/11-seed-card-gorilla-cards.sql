@@ -5057,7 +5057,7 @@ SET @card_product_id_2852 = (
 INSERT INTO card_product (
   mock_bin, card_company, card_name, card_type, annual_fee, image_url, source_card_id, source_url, created_at, updated_at
 )
-SELECT '830503', 'KB국민카드', '노리체크카드', 'CHECK', NULL, 'https://d1c5n4ri2guedi.cloudfront.net/card/348/card_img/20581/348card.png', '348', 'https://www.card-gorilla.com/card/detail/348', NOW(), NOW()
+SELECT '527289', 'KB국민카드', '노리체크카드', 'CHECK', NULL, 'https://d1c5n4ri2guedi.cloudfront.net/card/348/card_img/20581/348card.png', '348', 'https://www.card-gorilla.com/card/detail/348', NOW(), NOW()
 FROM DUAL
 WHERE NOT EXISTS (
     SELECT 1
@@ -5067,7 +5067,7 @@ WHERE NOT EXISTS (
   AND NOT EXISTS (
     SELECT 1
     FROM card_product
-    WHERE mock_bin = '830503'
+    WHERE mock_bin = '527289'
       AND source_card_id <> '348'
   );
 UPDATE card_product
