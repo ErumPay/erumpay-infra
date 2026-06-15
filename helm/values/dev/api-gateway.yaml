@@ -4,7 +4,7 @@ replicaCount: 2
 
 image:
   repository: "512138915880.dkr.ecr.ap-northeast-2.amazonaws.com/erumpay/api-gateway"
-  tag: "4dd7248"
+  tag: "b32e8b7"
 
 containerPort: 8080
 
