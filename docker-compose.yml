@@ -101,8 +101,10 @@ services:
       DB_USERNAME: root
       DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       REDIS_HOST: redis
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092                                         
+      FEIGN_PAYMENT_SERVICE_URL: http://payment-service:8083
+      FEIGN_CARD_SERVICE_URL: http://card-service:8082
 
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
     depends_on:
       mysql:
         condition: service_healthy
