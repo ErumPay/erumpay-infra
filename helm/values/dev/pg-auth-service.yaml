@@ -21,6 +21,8 @@ env:
   KAKAO_REDIRECT_URI: "https://merchant.eunna.store/api/v1/auth/login/oauth2/code/kakao"
   MERCHANT_SERVICE_URL: "http://merchant-service:8094/"
 
+  APP_CORS_ALLOWED_ORIGIN_PATTERNS: "http://localhost:3000,http://localhost:5173,http://localhost:8080,http://localhost:19000,https://merchant.eunna.store,https://pg.eunna.store"
+
 existingSecret: pg-auth-service-secret
 secretEnv: {}
 
