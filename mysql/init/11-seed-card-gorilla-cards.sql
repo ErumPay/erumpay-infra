@@ -10911,19 +10911,19 @@ SET @benefit_id_1909_5_2 = (
   LIMIT 1
 );
 
--- card_benefit: source_card_id=51, order=1_1, category=ETC, type=DISCOUNT, priority=0
+-- card_benefit: source_card_id=51, order=1_1, category=CAFE, type=DISCOUNT, priority=0
 SET @benefit_id_51_1_1 = NULL;
 INSERT INTO card_benefit (
   card_product_id, service_category, benefit_type, min_amount, time_start, time_end, day_condition, benefit_desc, priority, created_at, updated_at
 )
-SELECT @card_product_id_51, 'ETC', 'DISCOUNT', NULL, NULL, NULL, 'ALL', '라이프스타일 패키지 선택\n라이프스타일 패키지(옵션 패키지 중 택1)\n서비스 안내\n- 라이프스타일에 따른 옵션 패키지 선택 시 업종별 결제일할인(청구할인) 또는 빅포인트 적립\n- 쇼핑 7% 결제일할인 및 1% 적립\n- 커피 30% 또는 50% 결제일할인\n옵션패키지\n스타벅스\n50% 할인\n오픈마켓\n7% 할인\n소셜커머스\n1% 적립\n트렌디숍\n1% 적립\n스타벅스\n소셜커머스\n7% 할인\n오픈마켓\n1% 적립\n트렌디숍\n1% 적립\n스타벅스\n50% 할인\n트렌디숍\n7% 할인\n오픈마켓\n1% 적립\n소셜커머스\n1% 적립\n커피전문점\n30% 할인\n오픈마켓\n7% 할인\n소셜커머스\n1% 적립\n트렌디숍\n1% 적립\n커피전문점\n30% 할인\n소셜커머스\n7% 할인\n오픈마켓\n1% 적립\n트렌디숍\n1% 적립\n커피전문점\n30% 할인\n트렌디숍\n7% 할인\n오픈마켓\n1% 적립\n소셜커머스\n1% 적립\n이용방법\n- 삼성카드 앱을 통해 매월 옵션 패키지 변경 가능\n· 변경 신청 다음 달 1일에 자동 반영\n이용처\n- 오픈마켓: G마켓, 옥션, 11번', 0, NOW(), NOW()
+SELECT @card_product_id_51, 'CAFE', 'DISCOUNT', NULL, NULL, NULL, 'ALL', '라이프스타일 패키지 선택\n라이프스타일 패키지(옵션 패키지 중 택1)\n서비스 안내\n- 라이프스타일에 따른 옵션 패키지 선택 시 업종별 결제일할인(청구할인) 또는 빅포인트 적립\n- 쇼핑 7% 결제일할인 및 1% 적립\n- 커피 30% 또는 50% 결제일할인\n옵션패키지\n스타벅스\n50% 할인\n오픈마켓\n7% 할인\n소셜커머스\n1% 적립\n트렌디숍\n1% 적립\n스타벅스\n소셜커머스\n7% 할인\n오픈마켓\n1% 적립\n트렌디숍\n1% 적립\n스타벅스\n50% 할인\n트렌디숍\n7% 할인\n오픈마켓\n1% 적립\n소셜커머스\n1% 적립\n커피전문점\n30% 할인\n오픈마켓\n7% 할인\n소셜커머스\n1% 적립\n트렌디숍\n1% 적립\n커피전문점\n30% 할인\n소셜커머스\n7% 할인\n오픈마켓\n1% 적립\n트렌디숍\n1% 적립\n커피전문점\n30% 할인\n트렌디숍\n7% 할인\n오픈마켓\n1% 적립\n소셜커머스\n1% 적립\n이용방법\n- 삼성카드 앱을 통해 매월 옵션 패키지 변경 가능\n· 변경 신청 다음 달 1일에 자동 반영\n이용처\n- 오픈마켓: G마켓, 옥션, 11번', 0, NOW(), NOW()
 FROM DUAL
 WHERE @card_product_id_51 IS NOT NULL
   AND NOT EXISTS (
     SELECT 1
     FROM card_benefit cb
     WHERE cb.card_product_id = @card_product_id_51
-      AND cb.service_category = 'ETC'
+      AND cb.service_category = 'CAFE'
       AND cb.benefit_type = 'DISCOUNT'
       AND cb.min_amount <=> NULL
       AND cb.time_start <=> NULL
@@ -10936,7 +10936,7 @@ SET @benefit_id_51_1_1 = (
   SELECT cb.benefit_id
   FROM card_benefit cb
   WHERE cb.card_product_id = @card_product_id_51
-      AND cb.service_category = 'ETC'
+      AND cb.service_category = 'CAFE'
       AND cb.benefit_type = 'DISCOUNT'
       AND cb.min_amount <=> NULL
       AND cb.time_start <=> NULL
@@ -10985,19 +10985,19 @@ SET @benefit_id_51_1_16 = (
   LIMIT 1
 );
 
--- card_benefit: source_card_id=51, order=1_3, category=ETC, type=MILEAGE, priority=0
+-- card_benefit: source_card_id=51, order=1_3, category=SHOPPING, type=MILEAGE, priority=0
 SET @benefit_id_51_1_3 = NULL;
 INSERT INTO card_benefit (
   card_product_id, service_category, benefit_type, min_amount, time_start, time_end, day_condition, benefit_desc, priority, created_at, updated_at
 )
-SELECT @card_product_id_51, 'ETC', 'MILEAGE', NULL, NULL, NULL, 'ALL', '라이프스타일 패키지 선택\n라이프스타일 패키지(옵션 패키지 중 택1)\n서비스 안내\n- 라이프스타일에 따른 옵션 패키지 선택 시 업종별 결제일할인(청구할인) 또는 빅포인트 적립\n- 쇼핑 7% 결제일할인 및 1% 적립\n- 커피 30% 또는 50% 결제일할인\n옵션패키지\n스타벅스\n50% 할인\n오픈마켓\n7% 할인\n소셜커머스\n1% 적립\n트렌디숍\n1% 적립\n스타벅스\n소셜커머스\n7% 할인\n오픈마켓\n1% 적립\n트렌디숍\n1% 적립\n스타벅스\n50% 할인\n트렌디숍\n7% 할인\n오픈마켓\n1% 적립\n소셜커머스\n1% 적립\n커피전문점\n30% 할인\n오픈마켓\n7% 할인\n소셜커머스\n1% 적립\n트렌디숍\n1% 적립\n커피전문점\n30% 할인\n소셜커머스\n7% 할인\n오픈마켓\n1% 적립\n트렌디숍\n1% 적립\n커피전문점\n30% 할인\n트렌디숍\n7% 할인\n오픈마켓\n1% 적립\n소셜커머스\n1% 적립\n이용방법\n- 삼성카드 앱을 통해 매월 옵션 패키지 변경 가능\n· 변경 신청 다음 달 1일에 자동 반영\n이용처\n- 오픈마켓: G마켓, 옥션, 11번', 0, NOW(), NOW()
+SELECT @card_product_id_51, 'SHOPPING', 'MILEAGE', NULL, NULL, NULL, 'ALL', '라이프스타일 패키지 선택\n라이프스타일 패키지(옵션 패키지 중 택1)\n서비스 안내\n- 라이프스타일에 따른 옵션 패키지 선택 시 업종별 결제일할인(청구할인) 또는 빅포인트 적립\n- 쇼핑 7% 결제일할인 및 1% 적립\n- 커피 30% 또는 50% 결제일할인\n옵션패키지\n스타벅스\n50% 할인\n오픈마켓\n7% 할인\n소셜커머스\n1% 적립\n트렌디숍\n1% 적립\n스타벅스\n소셜커머스\n7% 할인\n오픈마켓\n1% 적립\n트렌디숍\n1% 적립\n스타벅스\n50% 할인\n트렌디숍\n7% 할인\n오픈마켓\n1% 적립\n소셜커머스\n1% 적립\n커피전문점\n30% 할인\n오픈마켓\n7% 할인\n소셜커머스\n1% 적립\n트렌디숍\n1% 적립\n커피전문점\n30% 할인\n소셜커머스\n7% 할인\n오픈마켓\n1% 적립\n트렌디숍\n1% 적립\n커피전문점\n30% 할인\n트렌디숍\n7% 할인\n오픈마켓\n1% 적립\n소셜커머스\n1% 적립\n이용방법\n- 삼성카드 앱을 통해 매월 옵션 패키지 변경 가능\n· 변경 신청 다음 달 1일에 자동 반영\n이용처\n- 오픈마켓: G마켓, 옥션, 11번', 0, NOW(), NOW()
 FROM DUAL
 WHERE @card_product_id_51 IS NOT NULL
   AND NOT EXISTS (
     SELECT 1
     FROM card_benefit cb
     WHERE cb.card_product_id = @card_product_id_51
-      AND cb.service_category = 'ETC'
+      AND cb.service_category = 'SHOPPING'
       AND cb.benefit_type = 'MILEAGE'
       AND cb.min_amount <=> NULL
       AND cb.time_start <=> NULL
@@ -11010,7 +11010,7 @@ SET @benefit_id_51_1_3 = (
   SELECT cb.benefit_id
   FROM card_benefit cb
   WHERE cb.card_product_id = @card_product_id_51
-      AND cb.service_category = 'ETC'
+      AND cb.service_category = 'SHOPPING'
       AND cb.benefit_type = 'MILEAGE'
       AND cb.min_amount <=> NULL
       AND cb.time_start <=> NULL
@@ -18052,19 +18052,19 @@ SET @benefit_id_2731_3 = (
   LIMIT 1
 );
 
--- card_benefit: source_card_id=2235, order=1_1, category=ETC, type=DISCOUNT, priority=0
+-- card_benefit: source_card_id=2235, order=1_1, category=CAFE, type=DISCOUNT, priority=0
 SET @benefit_id_2235_1_1 = NULL;
 INSERT INTO card_benefit (
   card_product_id, service_category, benefit_type, min_amount, time_start, time_end, day_condition, benefit_desc, priority, created_at, updated_at
 )
-SELECT @card_product_id_2235, 'ETC', 'DISCOUNT', NULL, NULL, NULL, 'ALL', '많이 쓰는 영역 30% 자동 맞춤 할인\n(커피전문점·배달앱·델리 영역)\n많이 쓰는 영역 30% 자동 맞춤 할인\n커피전문점·배달앱·델리 영역 중 월 이용금액이 가장 큰 1개 영역에 대해 30% 결제일할인\n- 커피전문점: 스타벅스, 이디야커피, 커피빈, 투썸플레이스, 블루보틀\n- 배달앱: 배달의민족, 요기요\n- 델리: 쉐이크쉑, 써브웨이, 파리바게뜨, 배스킨라빈스, 던킨\n* 월 할인한도 : 10,000원\n* 전월 이용금액 30만원 이상 시 제공\n* 발급월+1개월까지는 전월 이용금액 30만원 미만 시에도 제공\n* 온라인 간편결제·해외 3%·1% 할인 혜택과 중복 적용\n* 결제일할인금액은 다음 달 15일 이후 결제대금에서 차감\n* 3개 영역 월 합산 이용금액 1원 이상 시 제공(1개 영역 이상 이용 시 제공)\n* 결제 취소건의 경우, 매출취소전표 접수월의 3개 영역 합산 이용금액 및 영역별 이용금액에 반영\n* 오프라인 결제건에 한하며, 백화점, 할인점, 쇼핑몰 등의 임대매장은 제외(단, 스', 0, NOW(), NOW()
+SELECT @card_product_id_2235, 'CAFE', 'DISCOUNT', NULL, NULL, NULL, 'ALL', '많이 쓰는 영역 30% 자동 맞춤 할인\n(커피전문점·배달앱·델리 영역)\n많이 쓰는 영역 30% 자동 맞춤 할인\n커피전문점·배달앱·델리 영역 중 월 이용금액이 가장 큰 1개 영역에 대해 30% 결제일할인\n- 커피전문점: 스타벅스, 이디야커피, 커피빈, 투썸플레이스, 블루보틀\n- 배달앱: 배달의민족, 요기요\n- 델리: 쉐이크쉑, 써브웨이, 파리바게뜨, 배스킨라빈스, 던킨\n* 월 할인한도 : 10,000원\n* 전월 이용금액 30만원 이상 시 제공\n* 발급월+1개월까지는 전월 이용금액 30만원 미만 시에도 제공\n* 온라인 간편결제·해외 3%·1% 할인 혜택과 중복 적용\n* 결제일할인금액은 다음 달 15일 이후 결제대금에서 차감\n* 3개 영역 월 합산 이용금액 1원 이상 시 제공(1개 영역 이상 이용 시 제공)\n* 결제 취소건의 경우, 매출취소전표 접수월의 3개 영역 합산 이용금액 및 영역별 이용금액에 반영\n* 오프라인 결제건에 한하며, 백화점, 할인점, 쇼핑몰 등의 임대매장은 제외(단, 스', 0, NOW(), NOW()
 FROM DUAL
 WHERE @card_product_id_2235 IS NOT NULL
   AND NOT EXISTS (
     SELECT 1
     FROM card_benefit cb
     WHERE cb.card_product_id = @card_product_id_2235
-      AND cb.service_category = 'ETC'
+      AND cb.service_category = 'CAFE'
       AND cb.benefit_type = 'DISCOUNT'
       AND cb.min_amount <=> NULL
       AND cb.time_start <=> NULL
@@ -18077,7 +18077,7 @@ SET @benefit_id_2235_1_1 = (
   SELECT cb.benefit_id
   FROM card_benefit cb
   WHERE cb.card_product_id = @card_product_id_2235
-      AND cb.service_category = 'ETC'
+      AND cb.service_category = 'CAFE'
       AND cb.benefit_type = 'DISCOUNT'
       AND cb.min_amount <=> NULL
       AND cb.time_start <=> NULL
@@ -21049,19 +21049,19 @@ SET @benefit_id_2482_1 = (
   LIMIT 1
 );
 
--- card_benefit: source_card_id=2234, order=1_1, category=ETC, type=DISCOUNT, priority=0
+-- card_benefit: source_card_id=2234, order=1_1, category=SHOPPING, type=DISCOUNT, priority=0
 SET @benefit_id_2234_1_1 = NULL;
 INSERT INTO card_benefit (
   card_product_id, service_category, benefit_type, min_amount, time_start, time_end, day_condition, benefit_desc, priority, created_at, updated_at
 )
-SELECT @card_product_id_2234, 'ETC', 'DISCOUNT', NULL, NULL, NULL, 'ALL', '많이 쓰는 영역 5% 자동 맞춤 할인\n(백화점·할인점·슈퍼마켓 영역)\n많이 쓰는 영역 5% 자동 맞춤 할인\n백화점·할인점·슈퍼마켓 영역 중 월 이용금액이 가장 큰 1개 영역에 대해 5% 결제일할인\n- 백화점: 신세계/롯데/현대/갤러리아 백화점, AK플라자\n- 할인점: 이마트, 이마트 트레이더스, 롯데마트, 홈플러스, 농협하나로마트\n- 슈퍼마켓: 이마트 에브리데이, GS THE FRESH(구. GS 수퍼마켓), 롯데슈퍼, 홈플러스 익스프레스\n전월 이용금액대별 월 할인한도\n- 40만원 이상: 5,000원\n- 70만원 이상: 10,000원\n* 발급월+1개월까지는 전월 이용금액 40만원 미만 시에도 40만원 이상~70만원 미만 실적구간 혜택 제공(전월 이용금액 70만원 이상 시에는 해당 실적구간 혜택 제공)\n* 국내외 가맹점 0.5% 할인 혜택과 중복 적용\n* 결제일할인금액은 다음 달 15일 이후 결제대금에서 차감\n* 3개 영역 월 합산 이용금액 1원 이상 시 제공(1개 영역 이상 이용 시', 0, NOW(), NOW()
+SELECT @card_product_id_2234, 'SHOPPING', 'DISCOUNT', NULL, NULL, NULL, 'ALL', '많이 쓰는 영역 5% 자동 맞춤 할인\n(백화점·할인점·슈퍼마켓 영역)\n많이 쓰는 영역 5% 자동 맞춤 할인\n백화점·할인점·슈퍼마켓 영역 중 월 이용금액이 가장 큰 1개 영역에 대해 5% 결제일할인\n- 백화점: 신세계/롯데/현대/갤러리아 백화점, AK플라자\n- 할인점: 이마트, 이마트 트레이더스, 롯데마트, 홈플러스, 농협하나로마트\n- 슈퍼마켓: 이마트 에브리데이, GS THE FRESH(구. GS 수퍼마켓), 롯데슈퍼, 홈플러스 익스프레스\n전월 이용금액대별 월 할인한도\n- 40만원 이상: 5,000원\n- 70만원 이상: 10,000원\n* 발급월+1개월까지는 전월 이용금액 40만원 미만 시에도 40만원 이상~70만원 미만 실적구간 혜택 제공(전월 이용금액 70만원 이상 시에는 해당 실적구간 혜택 제공)\n* 국내외 가맹점 0.5% 할인 혜택과 중복 적용\n* 결제일할인금액은 다음 달 15일 이후 결제대금에서 차감\n* 3개 영역 월 합산 이용금액 1원 이상 시 제공(1개 영역 이상 이용 시', 0, NOW(), NOW()
 FROM DUAL
 WHERE @card_product_id_2234 IS NOT NULL
   AND NOT EXISTS (
     SELECT 1
     FROM card_benefit cb
     WHERE cb.card_product_id = @card_product_id_2234
-      AND cb.service_category = 'ETC'
+      AND cb.service_category = 'SHOPPING'
       AND cb.benefit_type = 'DISCOUNT'
       AND cb.min_amount <=> NULL
       AND cb.time_start <=> NULL
@@ -21074,7 +21074,7 @@ SET @benefit_id_2234_1_1 = (
   SELECT cb.benefit_id
   FROM card_benefit cb
   WHERE cb.card_product_id = @card_product_id_2234
-      AND cb.service_category = 'ETC'
+      AND cb.service_category = 'SHOPPING'
       AND cb.benefit_type = 'DISCOUNT'
       AND cb.min_amount <=> NULL
       AND cb.time_start <=> NULL
@@ -48186,18 +48186,6 @@ WHERE @benefit_id_348_4 IS NOT NULL
       AND brand_name = 'VIPS'
   );
 
--- card_benefit_brand: source_card_id=348, order=4, brand=스타벅스
-INSERT INTO card_benefit_brand (benefit_id, brand_name)
-SELECT @benefit_id_348_4, '스타벅스'
-FROM DUAL
-WHERE @benefit_id_348_4 IS NOT NULL
-  AND NOT EXISTS (
-    SELECT 1
-    FROM card_benefit_brand
-    WHERE benefit_id = @benefit_id_348_4
-      AND brand_name = '스타벅스'
-  );
-
 -- card_benefit_brand: source_card_id=348, order=4, brand=아웃백
 INSERT INTO card_benefit_brand (benefit_id, brand_name)
 SELECT @benefit_id_348_4, '아웃백'
@@ -68476,6 +68464,391 @@ WHERE @benefit_id_2437_2_2 IS NOT NULL
 -- SKIP benefit: source_card_id=2234, order=4, reason=SELECTABLE_NOTICE_ONLY, title=선택형
 -- SKIP benefit: source_card_id=2234, order=5, reason=NOTICE, title=유의사항
 -- SKIP benefit: source_card_id=634, order=1, reason=SELECTABLE_NOTICE_ONLY, title=선택형
+
+-- Manual crawler corrections.
+-- These corrections align parsed seed values with crawled source text only.
+-- Do not add demo-only benefit disables, artificial usage exhaustion, or recommendation-shaping data here.
+
+-- 삼성카드 taptap O: shopping package discount is 7%; transit/telecom monthly discount limit is 5,000 won.
+UPDATE card_benefit_tier
+SET rate = 7.000,
+    tier_desc = '쇼핑 7% 결제일할인',
+    updated_at = NOW()
+WHERE benefit_id = @benefit_id_51_1_16
+  AND min_prev_month_usage = 300000;
+
+UPDATE card_benefit_tier
+SET monthly_limit_amount = 5000,
+    updated_at = NOW()
+WHERE benefit_id IN (@benefit_id_51_2, @benefit_id_51_3)
+  AND min_prev_month_usage = 300000;
+
+INSERT INTO card_benefit_brand (benefit_id, brand_name)
+SELECT @benefit_id_51_1_1, '스타벅스'
+FROM DUAL
+WHERE @benefit_id_51_1_1 IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM card_benefit_brand
+    WHERE benefit_id = @benefit_id_51_1_1
+      AND brand_name = '스타벅스'
+  );
+
+-- 노리체크카드: crawler text says per-use caps are maximum benefit amounts, not maximum eligible spend.
+UPDATE card_benefit_tier
+SET monthly_limit_amount = 2000,
+    updated_at = NOW()
+WHERE benefit_id = @benefit_id_348_1
+  AND min_prev_month_usage = 300000;
+
+UPDATE card_benefit_tier
+SET max_benefit_per_use = 7000,
+    updated_at = NOW()
+WHERE benefit_id = @benefit_id_348_3
+  AND min_prev_month_usage = 200000;
+
+UPDATE card_benefit_tier
+SET max_benefit_per_use = 10000,
+    updated_at = NOW()
+WHERE benefit_id = @benefit_id_348_4
+  AND min_prev_month_usage = 200000;
+
+UPDATE card_benefit_tier
+SET max_benefit_per_use = 25000,
+    updated_at = NOW()
+WHERE benefit_id = @benefit_id_348_5
+  AND min_prev_month_usage = 200000;
+
+UPDATE card_benefit_tier
+SET max_benefit_per_use = 1000,
+    updated_at = NOW()
+WHERE benefit_id = @benefit_id_348_7
+  AND min_prev_month_usage = 200000;
+
+UPDATE card_benefit_tier
+SET max_benefit_per_use = 2500,
+    monthly_limit_amount = 10000,
+    updated_at = NOW()
+WHERE benefit_id = @benefit_id_348_8
+  AND min_prev_month_usage = 200000;
+
+INSERT INTO card_benefit_brand (benefit_id, brand_name)
+SELECT @benefit_id_348_8, '교보문고'
+FROM DUAL
+WHERE @benefit_id_348_8 IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM card_benefit_brand
+    WHERE benefit_id = @benefit_id_348_8
+      AND brand_name = '교보문고'
+  );
+
+DELETE FROM card_benefit_brand
+WHERE benefit_id = @benefit_id_348_4
+  AND brand_name = '스타벅스';
+
+SET @benefit_id_348_4_starbucks = (
+  SELECT cb.benefit_id
+  FROM card_benefit cb
+  WHERE cb.card_product_id = @card_product_id_348
+    AND cb.service_category = 'CAFE'
+    AND cb.benefit_type = 'DISCOUNT'
+    AND cb.min_amount <=> 10000
+    AND cb.time_start <=> NULL
+    AND cb.time_end <=> NULL
+    AND cb.day_condition = 'ALL'
+    AND cb.benefit_desc <=> '스타벅스 20% 환급할인'
+    AND cb.priority = 0
+  ORDER BY cb.benefit_id
+  LIMIT 1
+);
+
+INSERT INTO card_benefit (
+  card_product_id, service_category, benefit_type, min_amount, time_start, time_end, day_condition, benefit_desc, priority, created_at, updated_at
+)
+SELECT @card_product_id_348, 'CAFE', 'DISCOUNT', 10000, NULL, NULL, 'ALL', '스타벅스 20% 환급할인', 0, NOW(), NOW()
+FROM DUAL
+WHERE @card_product_id_348 IS NOT NULL
+  AND @benefit_id_348_4_starbucks IS NULL;
+
+SET @benefit_id_348_4_starbucks = (
+  SELECT cb.benefit_id
+  FROM card_benefit cb
+  WHERE cb.card_product_id = @card_product_id_348
+    AND cb.service_category = 'CAFE'
+    AND cb.benefit_type = 'DISCOUNT'
+    AND cb.min_amount <=> 10000
+    AND cb.time_start <=> NULL
+    AND cb.time_end <=> NULL
+    AND cb.day_condition = 'ALL'
+    AND cb.benefit_desc <=> '스타벅스 20% 환급할인'
+    AND cb.priority = 0
+  ORDER BY cb.benefit_id
+  LIMIT 1
+);
+
+INSERT INTO card_benefit_brand (benefit_id, brand_name)
+SELECT @benefit_id_348_4_starbucks, '스타벅스'
+FROM DUAL
+WHERE @benefit_id_348_4_starbucks IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM card_benefit_brand
+    WHERE benefit_id = @benefit_id_348_4_starbucks
+      AND brand_name = '스타벅스'
+  );
+
+INSERT INTO card_benefit_tier (
+  benefit_id, min_prev_month_usage, max_prev_month_usage, rate, flat_amount, max_benefit_per_use,
+  daily_limit_count, daily_limit_amount, monthly_limit_count, monthly_limit_amount,
+  yearly_limit_count, yearly_limit_amount, tier_desc, created_at, updated_at
+)
+SELECT @benefit_id_348_4_starbucks, 200000, NULL, 20.000, NULL, 4000, NULL, NULL, NULL, 10000, NULL, NULL, '스타벅스 20% 환급할인 - 건당 1만원 이상, 최대 할인금액 4,000원', NOW(), NOW()
+FROM DUAL
+WHERE @benefit_id_348_4_starbucks IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM card_benefit_tier
+    WHERE benefit_id = @benefit_id_348_4_starbucks
+      AND min_prev_month_usage = 200000
+  );
+
+-- 삼성 iD ALL 카드: auto-match shopping tier has 5,000/10,000 won monthly limits by performance tier.
+UPDATE card_benefit_tier
+SET max_prev_month_usage = 700000,
+    monthly_limit_amount = 5000,
+    updated_at = NOW()
+WHERE benefit_id = @benefit_id_2234_1_1
+  AND min_prev_month_usage = 400000;
+
+INSERT INTO card_benefit_tier (
+  benefit_id, min_prev_month_usage, max_prev_month_usage, rate, flat_amount, max_benefit_per_use,
+  daily_limit_count, daily_limit_amount, monthly_limit_count, monthly_limit_amount,
+  yearly_limit_count, yearly_limit_amount, tier_desc, created_at, updated_at
+)
+SELECT @benefit_id_2234_1_1, 700000, NULL, 5.000, NULL, NULL, NULL, NULL, NULL, 10000, NULL, NULL, '많이 쓰는 영역 5% 자동 맞춤 할인 - 70만원 이상 월 할인한도 10,000원', NOW(), NOW()
+FROM DUAL
+WHERE @benefit_id_2234_1_1 IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM card_benefit_tier
+    WHERE benefit_id = @benefit_id_2234_1_1
+      AND min_prev_month_usage = 700000
+  );
+
+SET @benefit_id_2234_1_1_grocery = (
+  SELECT cb.benefit_id
+  FROM card_benefit cb
+  WHERE cb.card_product_id = @card_product_id_2234
+    AND cb.service_category = 'GROCERY'
+    AND cb.benefit_type = 'DISCOUNT'
+    AND cb.min_amount <=> NULL
+    AND cb.time_start <=> NULL
+    AND cb.time_end <=> NULL
+    AND cb.day_condition = 'ALL'
+    AND cb.benefit_desc <=> '많이 쓰는 슈퍼마켓 영역 5% 자동 맞춤 할인'
+    AND cb.priority = 0
+  ORDER BY cb.benefit_id
+  LIMIT 1
+);
+
+INSERT INTO card_benefit (
+  card_product_id, service_category, benefit_type, min_amount, time_start, time_end, day_condition, benefit_desc, priority, created_at, updated_at
+)
+SELECT @card_product_id_2234, 'GROCERY', 'DISCOUNT', NULL, NULL, NULL, 'ALL', '많이 쓰는 슈퍼마켓 영역 5% 자동 맞춤 할인', 0, NOW(), NOW()
+FROM DUAL
+WHERE @card_product_id_2234 IS NOT NULL
+  AND @benefit_id_2234_1_1_grocery IS NULL;
+
+SET @benefit_id_2234_1_1_grocery = (
+  SELECT cb.benefit_id
+  FROM card_benefit cb
+  WHERE cb.card_product_id = @card_product_id_2234
+    AND cb.service_category = 'GROCERY'
+    AND cb.benefit_type = 'DISCOUNT'
+    AND cb.min_amount <=> NULL
+    AND cb.time_start <=> NULL
+    AND cb.time_end <=> NULL
+    AND cb.day_condition = 'ALL'
+    AND cb.benefit_desc <=> '많이 쓰는 슈퍼마켓 영역 5% 자동 맞춤 할인'
+    AND cb.priority = 0
+  ORDER BY cb.benefit_id
+  LIMIT 1
+);
+
+INSERT INTO card_benefit_tier (
+  benefit_id, min_prev_month_usage, max_prev_month_usage, rate, flat_amount, max_benefit_per_use,
+  daily_limit_count, daily_limit_amount, monthly_limit_count, monthly_limit_amount,
+  yearly_limit_count, yearly_limit_amount, tier_desc, created_at, updated_at
+)
+SELECT @benefit_id_2234_1_1_grocery, 400000, 700000, 5.000, NULL, NULL, NULL, NULL, NULL, 5000, NULL, NULL, '슈퍼마켓 5% 자동 맞춤 할인 - 40만원 이상 월 할인한도 5,000원', NOW(), NOW()
+FROM DUAL
+WHERE @benefit_id_2234_1_1_grocery IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM card_benefit_tier
+    WHERE benefit_id = @benefit_id_2234_1_1_grocery
+      AND min_prev_month_usage = 400000
+  );
+
+INSERT INTO card_benefit_tier (
+  benefit_id, min_prev_month_usage, max_prev_month_usage, rate, flat_amount, max_benefit_per_use,
+  daily_limit_count, daily_limit_amount, monthly_limit_count, monthly_limit_amount,
+  yearly_limit_count, yearly_limit_amount, tier_desc, created_at, updated_at
+)
+SELECT @benefit_id_2234_1_1_grocery, 700000, NULL, 5.000, NULL, NULL, NULL, NULL, NULL, 10000, NULL, NULL, '슈퍼마켓 5% 자동 맞춤 할인 - 70만원 이상 월 할인한도 10,000원', NOW(), NOW()
+FROM DUAL
+WHERE @benefit_id_2234_1_1_grocery IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM card_benefit_tier
+    WHERE benefit_id = @benefit_id_2234_1_1_grocery
+      AND min_prev_month_usage = 700000
+  );
+
+-- 삼성 iD ON 카드: auto-match and life discount monthly limits.
+UPDATE card_benefit_tier
+SET monthly_limit_amount = 10000,
+    updated_at = NOW()
+WHERE benefit_id = @benefit_id_2235_1_1
+  AND min_prev_month_usage = 300000;
+
+INSERT INTO card_benefit_brand (benefit_id, brand_name)
+SELECT @benefit_id_2235_1_1, brand_name
+FROM (
+  SELECT '스타벅스' AS brand_name UNION ALL
+  SELECT '이디야' UNION ALL
+  SELECT '커피빈' UNION ALL
+  SELECT '투썸플레이스' UNION ALL
+  SELECT '블루보틀'
+) brands
+WHERE @benefit_id_2235_1_1 IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM card_benefit_brand cbb
+    WHERE cbb.benefit_id = @benefit_id_2235_1_1
+      AND cbb.brand_name = brands.brand_name
+  );
+
+SET @benefit_id_2235_1_1_food = (
+  SELECT cb.benefit_id
+  FROM card_benefit cb
+  WHERE cb.card_product_id = @card_product_id_2235
+    AND cb.service_category = 'FOOD'
+    AND cb.benefit_type = 'DISCOUNT'
+    AND cb.min_amount <=> NULL
+    AND cb.time_start <=> NULL
+    AND cb.time_end <=> NULL
+    AND cb.day_condition = 'ALL'
+    AND cb.benefit_desc <=> '배달앱·델리 30% 자동 맞춤 할인'
+    AND cb.priority = 0
+  ORDER BY cb.benefit_id
+  LIMIT 1
+);
+
+INSERT INTO card_benefit (
+  card_product_id, service_category, benefit_type, min_amount, time_start, time_end, day_condition, benefit_desc, priority, created_at, updated_at
+)
+SELECT @card_product_id_2235, 'FOOD', 'DISCOUNT', NULL, NULL, NULL, 'ALL', '배달앱·델리 30% 자동 맞춤 할인', 0, NOW(), NOW()
+FROM DUAL
+WHERE @card_product_id_2235 IS NOT NULL
+  AND @benefit_id_2235_1_1_food IS NULL;
+
+SET @benefit_id_2235_1_1_food = (
+  SELECT cb.benefit_id
+  FROM card_benefit cb
+  WHERE cb.card_product_id = @card_product_id_2235
+    AND cb.service_category = 'FOOD'
+    AND cb.benefit_type = 'DISCOUNT'
+    AND cb.min_amount <=> NULL
+    AND cb.time_start <=> NULL
+    AND cb.time_end <=> NULL
+    AND cb.day_condition = 'ALL'
+    AND cb.benefit_desc <=> '배달앱·델리 30% 자동 맞춤 할인'
+    AND cb.priority = 0
+  ORDER BY cb.benefit_id
+  LIMIT 1
+);
+
+INSERT INTO card_benefit_brand (benefit_id, brand_name)
+SELECT @benefit_id_2235_1_1_food, brand_name
+FROM (
+  SELECT '배달의 민족' AS brand_name UNION ALL
+  SELECT '요기요' UNION ALL
+  SELECT '쉐이크쉑' UNION ALL
+  SELECT '써브웨이' UNION ALL
+  SELECT '파리바게뜨' UNION ALL
+  SELECT '배스킨라빈스' UNION ALL
+  SELECT '던킨'
+) brands
+WHERE @benefit_id_2235_1_1_food IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM card_benefit_brand cbb
+    WHERE cbb.benefit_id = @benefit_id_2235_1_1_food
+      AND cbb.brand_name = brands.brand_name
+  );
+
+INSERT INTO card_benefit_tier (
+  benefit_id, min_prev_month_usage, max_prev_month_usage, rate, flat_amount, max_benefit_per_use,
+  daily_limit_count, daily_limit_amount, monthly_limit_count, monthly_limit_amount,
+  yearly_limit_count, yearly_limit_amount, tier_desc, created_at, updated_at
+)
+SELECT @benefit_id_2235_1_1_food, 300000, NULL, 30.000, NULL, NULL, NULL, NULL, NULL, 10000, NULL, NULL, '배달앱·델리 30% 자동 맞춤 할인 - 월 할인한도 10,000원', NOW(), NOW()
+FROM DUAL
+WHERE @benefit_id_2235_1_1_food IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM card_benefit_tier
+    WHERE benefit_id = @benefit_id_2235_1_1_food
+      AND min_prev_month_usage = 300000
+  );
+
+-- KB국민 My WE:SH 카드: more-sincere service limits and movie annual limit from crawler text.
+UPDATE card_benefit_tier
+SET monthly_limit_amount = 5000,
+    updated_at = NOW()
+WHERE benefit_id IN (@benefit_id_2441_5_1, @benefit_id_2441_5_2, @benefit_id_2441_6_1, @benefit_id_2441_6_2)
+  AND min_prev_month_usage = 400000;
+
+UPDATE card_benefit_tier
+SET yearly_limit_count = 4,
+    yearly_limit_amount = 20000,
+    updated_at = NOW()
+WHERE benefit_id = @benefit_id_2441_6_3
+  AND min_prev_month_usage = 400000;
+
+UPDATE card_benefit_tier
+SET monthly_limit_amount = 10000,
+    updated_at = NOW()
+WHERE benefit_id IN (@benefit_id_2441_7_1, @benefit_id_2441_7_2, @benefit_id_2441_7_3)
+  AND min_prev_month_usage = 400000;
+
+-- 카드의정석 SHOPPING+: "매출 건당 5만원까지 할인" means a 5,000 won cap at 10%.
+UPDATE card_benefit_tier
+SET max_benefit_per_use = 5000,
+    updated_at = NOW()
+WHERE benefit_id IN (@benefit_id_2687_1, @benefit_id_2687_2_1, @benefit_id_2687_2_2, @benefit_id_2687_2_6)
+  AND min_prev_month_usage = 300000;
+
+-- JADE Classic: crawler text has monthly reward limits for special, digital, coffee, and taxi rewards.
+UPDATE card_benefit_tier
+SET monthly_limit_amount = 100000,
+    updated_at = NOW()
+WHERE benefit_id IN (@benefit_id_2657_4_2, @benefit_id_2657_4_3, @benefit_id_2657_4_4, @benefit_id_2657_4_7, @benefit_id_2657_4_8)
+  AND min_prev_month_usage = 500000;
+
+UPDATE card_benefit_tier
+SET monthly_limit_amount = 10000,
+    updated_at = NOW()
+WHERE benefit_id = @benefit_id_2657_5
+  AND min_prev_month_usage = 500000;
+
+UPDATE card_benefit_tier
+SET monthly_limit_amount = 5000,
+    updated_at = NOW()
+WHERE benefit_id IN (@benefit_id_2657_6_1, @benefit_id_2657_7_1)
+  AND min_prev_month_usage = 500000;
 
 COMMIT;
 
